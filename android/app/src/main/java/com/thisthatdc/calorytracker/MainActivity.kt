@@ -1,4 +1,4 @@
-package com.calorytracker
+package com.thisthatdc.calorytracker
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
