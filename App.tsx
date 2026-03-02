@@ -22,20 +22,52 @@ import {
 import Container from './components/Container';
 import CalendarModule from './modules/Test'
 
+import {createStaticNavigation, useNavigation} from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+
+function H() {
+  return (<View
+      style={{
+        backgroundColor: '#09F',
+      }}
+    >
+      <Text>Damn</Text>
+    </View>)
+}
+
+const RootStack = createNativeStackNavigator({
+  screens: {
+    Home: {
+      screen: AppContent,
+      options: {title: 'Welcome', header: null as never},
+    },
+    Profile: {
+      screen: Dummy,
+    },
+  },
+});
+
+const Navigation = createStaticNavigation(RootStack);
+
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
 
   return (
     <SafeAreaProvider>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <AppContent />
+      <Navigation />
     </SafeAreaProvider>
   );
+}
+
+function Dummy () {
+  return (<Text>Hello dear;</Text>)
 }
 
 function AppContent() {
   const safeAreaInsets = useSafeAreaInsets();
   const isDarkMode = useColorScheme() === 'dark';
+  const navigation = useNavigation();
   let elms = [];
   for (let i = 0; i <= 43; i++) {
     elms.push(
@@ -47,6 +79,7 @@ function AppContent() {
   const onPress = () => {
     console.log("Doing work");
     CalendarModule.createCalendarEvent('foo', 'bar');
+    navigation.navigate('Profile');
   }
   return (
     <View
