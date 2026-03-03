@@ -1,37 +1,32 @@
-import { PropsWithChildren } from 'react';
-import { StyleSheet, View } from 'react-native';
-export type ContainerProps = Readonly<{
-  bgColor?: string;
-}>;
-
-export function Container(props: PropsWithChildren<ContainerProps>) {
+import { Text, View } from 'react-native';
+export function DateSelector() {
   return (
     <View
       style={[
-        styles.container,
         {
-          backgroundColor: props.bgColor,
-          width: '100%',
+          backgroundColor: '#09f',
+          flexGrow: 1,
           alignItems: 'center',
         },
       ]}
     >
-      {props.children}
+      <View
+        style={{
+          backgroundColor: '#00f',
+          maxWidth: 320,
+        }}
+      >
+        <Text>Hey</Text>
+      </View>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = {
   container: {
     flexGrow: 1,
     alignItems: 'center',
-    marginTop: 36,
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    paddingLeft: 16,
-    borderRadius: 12,
-    fontSize: 16,
-    textAlign: 'center',
+    paddingHorizontal: 24,
   },
   header: {
     width: '100%',
@@ -97,4 +92,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-});
+};

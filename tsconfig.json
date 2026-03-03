@@ -1,7 +1,12 @@
 {
   "extends": "@react-native/typescript-config",
   "compilerOptions": {
-    "types": ["jest"]
+    "baseUrl": ".",
+    "module": "esnext",
+    "types": ["jest"],
+    "paths": {
+      "@components/*": ["components/*"]
+    }
   },
   "include": ["**/*.ts", "**/*.tsx"],
   "exclude": ["**/node_modules", "**/Pods"]
