@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.BottomAppBar
@@ -22,12 +24,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.thisthatdc.calorytracker.components.DateBar
 import com.thisthatdc.calorytracker.components.DateNavigator
+import com.thisthatdc.calorytracker.components.Macros
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -52,10 +56,16 @@ fun Home(modifier: Modifier = Modifier) {
         Column(
             modifier = Modifier
                 .padding(innerPadding),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(5.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            DateBar()
+            DateBar(modifier = modifier.padding(top=10.dp))
             DateNavigator()
+            LazyColumn (modifier = modifier.fillMaxWidth().padding(start = 5.dp, end = 5.dp)) {
+               item {
+                   Macros(modifier)
+               }
+            }
         }
     }
 }
@@ -64,6 +74,6 @@ fun Home(modifier: Modifier = Modifier) {
 @Composable
 fun GreetingPreview() {
     CaloryTrackerTheme {
-        //Home()
+        Home()
     }
 }

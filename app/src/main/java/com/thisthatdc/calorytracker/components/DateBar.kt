@@ -25,7 +25,6 @@ fun DateBar(modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(top = 20.dp)
             .height(50.dp)
             .background(
                 color = MaterialTheme.colorScheme.surfaceContainerHigh,
