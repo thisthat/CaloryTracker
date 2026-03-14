@@ -2,7 +2,9 @@ package com.thisthatdc.calorytracker.pages
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -31,6 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.thisthatdc.calorytracker.components.DateBar
 import com.thisthatdc.calorytracker.components.DateNavigator
+import com.thisthatdc.calorytracker.components.FoodList
 import com.thisthatdc.calorytracker.components.Macros
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
 
@@ -64,6 +67,8 @@ fun Home(modifier: Modifier = Modifier) {
             LazyColumn (modifier = modifier.fillMaxWidth().padding(start = 5.dp, end = 5.dp)) {
                item {
                    Macros(modifier)
+                   Spacer(Modifier.height(10.dp))
+                   FoodList(modifier)
                }
             }
         }
