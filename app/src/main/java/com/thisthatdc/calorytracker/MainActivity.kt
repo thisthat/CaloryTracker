@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import com.thisthatdc.calorytracker.pages.AddFood
 import com.thisthatdc.calorytracker.pages.Home
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
 
@@ -13,7 +14,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             CaloryTrackerTheme {
-                Home()
+//                Home()
+                AddFood()
             }
         }
     }
