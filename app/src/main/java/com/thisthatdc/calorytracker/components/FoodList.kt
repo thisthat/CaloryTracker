@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.sp
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
 
 @Composable
-fun FoodList(modifier: Modifier = Modifier) {
+fun FoodList(modifier: Modifier = Modifier, onFoodClick: (Meals) -> Unit) {
     Column(
         modifier = modifier
             .fillMaxWidth(),
@@ -32,19 +32,23 @@ fun FoodList(modifier: Modifier = Modifier) {
     ) {
         Meal(
             modifier = modifier.background(MaterialTheme.colorScheme.surfaceContainer),
-            meal = Meals.Breakfast
+            meal = Meals.Breakfast,
+            onFoodClick = onFoodClick,
         )
         Meal(
             modifier = modifier.background(MaterialTheme.colorScheme.surfaceContainer),
-            meal = Meals.Lunch
+            meal = Meals.Lunch,
+            onFoodClick = onFoodClick,
         )
         Meal(
             modifier = modifier.background(MaterialTheme.colorScheme.surfaceContainer),
-            meal = Meals.Snacks
+            meal = Meals.Snacks,
+            onFoodClick = onFoodClick,
         )
         Meal(
             modifier = modifier.background(MaterialTheme.colorScheme.surfaceContainer),
-            meal = Meals.Dinner
+            meal = Meals.Dinner,
+            onFoodClick = onFoodClick,
         )
     }
 }
@@ -72,7 +76,7 @@ fun MacroMeal(modifier: Modifier = Modifier, macro: MacroNutrient) {
 
 
 @Composable
-fun Meal(modifier: Modifier = Modifier, meal: Meals) {
+fun Meal(modifier: Modifier = Modifier, meal: Meals, onFoodClick: (Meals) -> Unit) {
     var items = arrayListOf<String>();
     Column(
         modifier = modifier
@@ -96,7 +100,7 @@ fun Meal(modifier: Modifier = Modifier, meal: Meals) {
             HorizontalDivider(thickness = 1.dp)
         }
         TextButton(
-            onClick = { }
+            onClick = { onFoodClick(meal) }
         ) {
             Text("Add Food")
         }
@@ -114,7 +118,7 @@ fun FoodListPreview() {
             Row(
                 modifier = Modifier.padding(innerPadding)
             ) {
-                FoodList()
+                FoodList(onFoodClick = {})
             }
         }
     }

@@ -38,6 +38,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.thisthatdc.calorytracker.components.DateBar
+import com.thisthatdc.calorytracker.components.Meals
 import com.thisthatdc.calorytracker.tabs.AllTab
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
 
@@ -53,7 +54,7 @@ enum class Tabs(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddFood(modifier: Modifier = Modifier) {
+fun AddFood(modifier: Modifier = Modifier, meal: Meals) {
     val scrollBehavior = pinnedScrollBehavior(rememberTopAppBarState())
     var selectedDestination by rememberSaveable { mutableIntStateOf(0) }
     var textFieldState by rememberSaveable { mutableStateOf("") }
@@ -66,7 +67,7 @@ fun AddFood(modifier: Modifier = Modifier) {
                     titleContentColor = MaterialTheme.colorScheme.primary,
                 ),
                 title = {
-                    Text("Find Food")
+                    Text("Find ${meal.name} Food")
                 },
                 actions = {
                     IconButton(onClick = { /* do something */ }) {
@@ -132,6 +133,6 @@ fun AddFood(modifier: Modifier = Modifier) {
 @Composable
 fun AddFoodPreview() {
     CaloryTrackerTheme {
-        AddFood()
+        AddFood(meal = Meals.Breakfast)
     }
 }
