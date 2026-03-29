@@ -37,8 +37,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.thisthatdc.calorytracker.components.DateBar
 import com.thisthatdc.calorytracker.tabs.AllTab
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
+
+enum class Tabs(
+    val title: String,
+    val component: @Composable () -> Unit
+) {
+    ALL(title="All", component = ::AllTab),
+    YOUR_FOOD(title="Your food", component = {
+        DateBar()
+    }),
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,7 +57,6 @@ fun AddFood(modifier: Modifier = Modifier) {
     val scrollBehavior = pinnedScrollBehavior(rememberTopAppBarState())
     var selectedDestination by rememberSaveable { mutableIntStateOf(0) }
     var textFieldState by rememberSaveable { mutableStateOf("") }
-    var tabValue: Unit? by rememberSaveable { mutableStateOf(null) }
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -92,51 +102,27 @@ fun AddFood(modifier: Modifier = Modifier) {
                 selectedTabIndex = selectedDestination,
                 modifier = modifier
             ) {
-                Tab(
-                    selected = selectedDestination == 0,
-                    onClick = {
-                        selectedDestination = 0
-                    },
-                    text = {
-                        Text(
-                            text = "All",
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                )
-                Tab(
-                    selected = selectedDestination == 1,
-                    onClick = {
-                        selectedDestination = 1
-                    },
-                    text = {
-                        Text(
-                            text = "Favorite",
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                )
-                Tab(
-                    selected = selectedDestination == 2,
-                    onClick = {
-                        selectedDestination = 2
-                    },
-                    text = {
-                        Text(
-                            text = "Recent",
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                )
+                Tabs.entries.forEachIndexed { index, elm ->
+                    Tab(
+                        selected = selectedDestination == index,
+                        onClick = {
+                            selectedDestination = index
+                        },
+                        text = {
+                            Text(
+                                text = elm.title,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                    )
+                }
             }
-
-            if (selectedDestination == 0) {
-                AllTab()
+            Tabs.entries.forEachIndexed { index, elm ->
+                if (selectedDestination == index) {
+                    elm.component()
+                }
             }
-
         }
     }
 }
@@ -144,7 +130,7 @@ fun AddFood(modifier: Modifier = Modifier) {
 
 @Preview(showBackground = true)
 @Composable
-fun AddFoodgPreview() {
+fun AddFoodPreview() {
     CaloryTrackerTheme {
         AddFood()
     }
