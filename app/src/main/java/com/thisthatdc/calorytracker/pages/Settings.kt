@@ -2,13 +2,9 @@ package com.thisthatdc.calorytracker.pages
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -24,16 +20,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.thisthatdc.calorytracker.components.DateBar
-import com.thisthatdc.calorytracker.components.DateNavigator
-import com.thisthatdc.calorytracker.components.FoodList
-import com.thisthatdc.calorytracker.components.Macros
-import com.thisthatdc.calorytracker.components.Meals
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Home(modifier: Modifier = Modifier, onFoodClick: (Meals) -> Unit, onSettingsClick: () -> Unit) {
+fun Settings(modifier: Modifier = Modifier, onBack: () -> Unit) {
     val scrollBehavior = pinnedScrollBehavior(rememberTopAppBarState())
     Scaffold(
         modifier = modifier,
@@ -44,13 +35,13 @@ fun Home(modifier: Modifier = Modifier, onFoodClick: (Meals) -> Unit, onSettings
                     titleContentColor = MaterialTheme.colorScheme.primary,
                 ),
                 title = {
-                    Text("Calory Tracker")
+                    Text("Calory Tracker :: Settings")
                 },
-                actions = {
-                    IconButton(onClick = onSettingsClick) {
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
                         Icon(
-                            imageVector = Icons.Filled.Settings,
-                            contentDescription = "Settings"
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "back"
                         )
                     }
                 },
@@ -64,28 +55,15 @@ fun Home(modifier: Modifier = Modifier, onFoodClick: (Meals) -> Unit, onSettings
             verticalArrangement = Arrangement.spacedBy(5.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            DateBar(modifier = modifier.padding(top = 10.dp))
-            DateNavigator()
-            LazyColumn(modifier = modifier
-                .fillMaxWidth()
-                .padding(start = 5.dp, end = 5.dp)) {
-                item {
-                    Macros(modifier)
-                    Spacer(Modifier.height(10.dp))
-                    FoodList(modifier, onFoodClick)
-                }
-            }
+            Text("Settings")
         }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
+fun SettingsPreview() {
     CaloryTrackerTheme {
-        Home(
-            onFoodClick = {},
-            onSettingsClick = {},
-        )
+        Settings(onBack = {})
     }
 }

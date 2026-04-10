@@ -11,6 +11,7 @@ import androidx.navigation3.ui.NavDisplay
 import com.thisthatdc.calorytracker.components.Meals
 import com.thisthatdc.calorytracker.pages.AddFood
 import com.thisthatdc.calorytracker.pages.Home
+import com.thisthatdc.calorytracker.pages.Settings
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -21,7 +22,7 @@ data object HomeScreen: NavKey
 data class AddFoodScreen(val meal: Meals): NavKey
 
 @Serializable
-data class NoteDetail(val id: Int): NavKey
+data object SettingsScreen: NavKey
 
 @Composable
 fun NavigationRoot(
@@ -42,6 +43,9 @@ fun NavigationRoot(
                         Home(
                             onFoodClick = { meal ->
                                 backStack.add(AddFoodScreen(meal))
+                            },
+                            onSettingsClick = {
+                                backStack.add(SettingsScreen)
                             }
                         )
                     }
@@ -49,6 +53,15 @@ fun NavigationRoot(
                 is AddFoodScreen -> {
                     NavEntry(key = key) {
                         AddFood(meal = key.meal)
+                    }
+                }
+                is SettingsScreen -> {
+                    NavEntry(key = key) {
+                        Settings(
+                            onBack = {
+                                backStack.removeLastOrNull()
+                            }
+                        )
                     }
                 }
                 else -> throw RuntimeException("Invalid routing key")
