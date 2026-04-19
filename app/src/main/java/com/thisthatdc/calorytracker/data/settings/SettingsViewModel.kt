@@ -5,14 +5,15 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.thisthatdc.calorytracker.data.AppDatabase
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class SettingsViewModel(
     private val dao: SettingsDao
@@ -38,7 +39,9 @@ class SettingsViewModel(
                         uid = currentSettings?.uid ?: 0,
                         calories = _state.value.calories
                     )
-                    dao.upsert(s)
+                    withContext(Dispatchers.IO) {
+                        dao.upsert(s)
+                    }
                 }
             }
             is SettingsEvent.SetCalories -> {

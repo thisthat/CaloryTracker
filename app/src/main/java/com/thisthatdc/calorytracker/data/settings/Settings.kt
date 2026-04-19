@@ -17,7 +17,7 @@ data class Settings (
 @Dao
 interface SettingsDao {
     @Query("SELECT * FROM settings LIMIT 1")
-    fun get(): Flow<Settings>
+    fun get(): Flow<Settings?>
 
     @Upsert
     fun upsert(settings: Settings)

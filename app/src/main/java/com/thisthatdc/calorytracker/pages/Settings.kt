@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -70,7 +69,10 @@ fun SettingsScreen(
                     Text("Calory Tracker :: Settings")
                 },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    IconButton(onClick = {
+                        onEvent(SettingsEvent.SaveSettings)
+                        onBack()
+                    }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "back"
@@ -111,16 +113,6 @@ fun SettingsScreen(
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.widthIn(min = 80.dp)
                 )
-            }
-
-            Button(
-                onClick = { 
-                    onEvent(SettingsEvent.SaveSettings)
-                    onBack()
-                },
-                modifier = Modifier.align(Alignment.End)
-            ) {
-                Text("Save")
             }
         }
     }

@@ -36,6 +36,7 @@ androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", vers
 androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "nav3Core" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room"}
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room"}
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room"}
 
 # Optional add-on libraries
 androidx-lifecycle-viewmodel-navigation3 = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "lifecycleViewmodelNav3" }
