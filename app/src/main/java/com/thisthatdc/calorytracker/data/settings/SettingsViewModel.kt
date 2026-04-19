@@ -23,8 +23,13 @@ class SettingsViewModel(
     private val _state = MutableStateFlow(SettingsState())
 
     val state = combine(_state, _settings) { state, settings ->
-        if (state.calories == 1300 && settings != null) {
-             state.copy(calories = settings.calories)
+        if (settings != null) {
+             state.copy(
+                 calories = settings.calories,
+                 fat = settings.fat,
+                 protein = settings.protein,
+                 carbs = settings.carbs
+             )
         } else {
             state
         }
@@ -37,7 +42,10 @@ class SettingsViewModel(
                     val currentSettings = _settings.firstOrNull()
                     val s = Settings(
                         uid = currentSettings?.uid ?: 0,
-                        calories = _state.value.calories
+                        calories = _state.value.calories,
+                        fat = _state.value.fat,
+                        protein = _state.value.protein,
+                        carbs = _state.value.carbs
                     )
                     withContext(Dispatchers.IO) {
                         dao.upsert(s)
@@ -47,6 +55,22 @@ class SettingsViewModel(
             is SettingsEvent.SetCalories -> {
                 _state.update { it.copy(
                     calories = event.calories
+                ) }
+            }
+
+            is SettingsEvent.SetCarbs -> {
+                _state.update { it.copy(
+                    carbs = event.carbs
+                ) }
+            }
+            is SettingsEvent.SetFat -> {
+                _state.update { it.copy(
+                    fat = event.fat
+                ) }
+            }
+            is SettingsEvent.SetProtein -> {
+                _state.update { it.copy(
+                    protein = event.protein
                 ) }
             }
         }

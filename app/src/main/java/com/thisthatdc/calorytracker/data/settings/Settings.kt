@@ -12,6 +12,9 @@ import kotlinx.coroutines.flow.Flow
 data class Settings (
     @PrimaryKey val uid: Int,
     @ColumnInfo(name = "daily_calories") val calories: Int,
+    @ColumnInfo(name = "daily_fat") val fat: Int,
+    @ColumnInfo(name = "daily_protein") val protein: Int,
+    @ColumnInfo(name = "daily_carbs") val carbs: Int,
 )
 
 @Dao

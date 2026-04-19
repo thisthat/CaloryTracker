@@ -19,11 +19,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
 
-enum class MacroNutrient(val color: Color, name: String) {
-    Calories(Color(0xFF54a9fd), "Calories"),
-    Protein(Color(0xFFa98dfe), "Protein"),
-    Fat(Color(0xFFfc9c37), "Fat"),
-    Carbs(Color(0xFF65d9e8), "Carbs"),
+enum class MacroNutrient(val color: Color, val title: String, val unit: String = "g") {
+    Calories(Color(0xFF54a9fd), "Calories", "kcal"),
+    Protein(Color(0xFFa98dfe), "Protein", "g"),
+    Fat(Color(0xFFfc9c37), "Fat", "g"),
+    Carbs(Color(0xFF65d9e8), "Carbs", "g"),
 }
 
 @Composable
@@ -52,7 +52,7 @@ fun Macro(modifier: Modifier = Modifier, macro: MacroNutrient) {
                 fontSize = 14.sp,
             )
             Text(
-                "17g remaining",
+                "17${macro.unit} remaining",
                 fontSize =  10.sp,
                 modifier = modifier.padding(start = 20.dp)
             )
@@ -70,8 +70,9 @@ fun Macro(modifier: Modifier = Modifier, macro: MacroNutrient) {
                 gapSize = 0.dp,
             )
             Text(
-                "2.938/2.125 g",
-                fontSize = 10.sp,
+                "2.938/2.125 ${macro.unit}",
+                fontSize = 8.sp,
+                modifier = modifier.fillMaxWidth(1f).padding(start = 5.dp)
             )
         }
 

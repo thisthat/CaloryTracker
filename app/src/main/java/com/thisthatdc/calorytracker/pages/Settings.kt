@@ -14,6 +14,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults.pinnedScrollBehavior
@@ -27,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.thisthatdc.calorytracker.components.MacroNutrient
 import com.thisthatdc.calorytracker.data.settings.SettingsEvent
 import com.thisthatdc.calorytracker.data.settings.SettingsState
 import com.thisthatdc.calorytracker.data.settings.SettingsViewModel
@@ -95,25 +97,59 @@ fun SettingsScreen(
                 text = "Daily Calorie Goal",
                 style = MaterialTheme.typography.titleLarge
             )
-            
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Slider(
-                    value = state.calories.toFloat(),
-                    onValueChange = { onEvent(SettingsEvent.SetCalories(it.toInt())) },
-                    valueRange = 1000f..3000f,
-                    steps = 39,
-                    modifier = Modifier.weight(1f)
-                )
-                Text(
-                    text = "${state.calories} kcal",
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.widthIn(min = 80.dp)
-                )
+
+            MacroNutrient.entries.forEach { macro ->
+                val limit: ClosedFloatingPointRange<Float> = when (macro) {
+                    MacroNutrient.Calories -> 1000f..3000f
+                    else -> 10f..100f
+                }
+                val value = when (macro) {
+                    MacroNutrient.Calories -> state.calories
+                    MacroNutrient.Protein -> state.protein
+                    MacroNutrient.Fat -> state.fat
+                    MacroNutrient.Carbs -> state.carbs
+
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Slider(
+                        value = value.toFloat(),
+                        onValueChange = { onEvent(handleEvent(macro,it.toInt())) },
+                        valueRange = limit,
+                        steps = 39,
+                        modifier = Modifier.weight(1f),
+                        colors = SliderDefaults.colors(
+                            thumbColor = macro.color,
+                            activeTrackColor = macro.color,
+                        )
+                    )
+                    Text(
+                        text = "$value ${macro.unit}",
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.widthIn(min = 80.dp)
+                    )
+                }
             }
+        }
+    }
+}
+
+fun handleEvent(macroNutrient: MacroNutrient, value: Int): SettingsEvent {
+    when (macroNutrient) {
+        MacroNutrient.Calories -> {
+            return SettingsEvent.SetCalories(value)
+        }
+        MacroNutrient.Protein -> {
+            return SettingsEvent.SetProtein(value)
+        }
+        MacroNutrient.Fat -> {
+            return SettingsEvent.SetFat(value)
+        }
+        MacroNutrient.Carbs -> {
+            return SettingsEvent.SetCarbs(value)
         }
     }
 }
