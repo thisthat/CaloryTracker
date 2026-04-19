@@ -2,30 +2,62 @@ package com.thisthatdc.calorytracker.pages
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults.pinnedScrollBehavior
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.thisthatdc.calorytracker.data.settings.SettingsEvent
+import com.thisthatdc.calorytracker.data.settings.SettingsState
+import com.thisthatdc.calorytracker.data.settings.SettingsViewModel
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
+
+@Composable
+fun Settings(
+    modifier: Modifier = Modifier,
+    onBack: () -> Unit,
+    viewModel: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory)
+) {
+    val state by viewModel.state.collectAsState()
+    SettingsScreen(
+        state = state,
+        onEvent = viewModel::onEvent,
+        onBack = onBack,
+        modifier = modifier
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Settings(modifier: Modifier = Modifier, onBack: () -> Unit) {
+fun SettingsScreen(
+    state: SettingsState,
+    onEvent: (SettingsEvent) -> Unit,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val scrollBehavior = pinnedScrollBehavior(rememberTopAppBarState())
+
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -51,11 +83,45 @@ fun Settings(modifier: Modifier = Modifier, onBack: () -> Unit) {
     ) { innerPadding ->
         Column(
             modifier = Modifier
-                .padding(innerPadding),
-            verticalArrangement = Arrangement.spacedBy(5.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(innerPadding)
+                .padding(16.dp)
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalAlignment = Alignment.Start
         ) {
-            Text("Settings")
+            Text(
+                text = "Daily Calorie Goal",
+                style = MaterialTheme.typography.titleLarge
+            )
+            
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Slider(
+                    value = state.calories.toFloat(),
+                    onValueChange = { onEvent(SettingsEvent.SetCalories(it.toInt())) },
+                    valueRange = 1000f..3000f,
+                    steps = 39,
+                    modifier = Modifier.weight(1f)
+                )
+                Text(
+                    text = "${state.calories} kcal",
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.widthIn(min = 80.dp)
+                )
+            }
+
+            Button(
+                onClick = { 
+                    onEvent(SettingsEvent.SaveSettings)
+                    onBack()
+                },
+                modifier = Modifier.align(Alignment.End)
+            ) {
+                Text("Save")
+            }
         }
     }
 }
@@ -64,6 +130,11 @@ fun Settings(modifier: Modifier = Modifier, onBack: () -> Unit) {
 @Composable
 fun SettingsPreview() {
     CaloryTrackerTheme {
-        Settings(onBack = {})
+        // Use SettingsScreen directly in Preview to avoid ViewModel instantiation issues
+        SettingsScreen(
+            state = SettingsState(calories = 2000),
+            onEvent = {},
+            onBack = {}
+        )
     }
 }
