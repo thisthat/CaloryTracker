@@ -40,7 +40,7 @@ interface FoodDao {
 @Entity(tableName = "food_eaten")
 data class FoodEaten (
     @PrimaryKey val uid: Long,
-    @Embedded val foodDetails: Food,
+    @ColumnInfo(name = "food_data") val foodId: Long,
     @ColumnInfo(name = "created_at") val createdAt: Long,
     @ColumnInfo(name = "quantity") val quantity: Long,
     @ColumnInfo(name = "unit") val unit: Unit,

@@ -10,6 +10,7 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.thisthatdc.calorytracker.components.Meals
 import com.thisthatdc.calorytracker.pages.AddFood
+import com.thisthatdc.calorytracker.pages.AddFoodItem
 import com.thisthatdc.calorytracker.pages.Home
 import com.thisthatdc.calorytracker.pages.Settings
 import kotlinx.serialization.Serializable
@@ -21,8 +22,14 @@ data object HomeScreen : NavKey
 @Serializable
 data class AddFoodScreen(val meal: Meals) : NavKey
 
+
+@Serializable
+data class AddFoodItemScreen(val meal: Meals) : NavKey
+
+
 @Serializable
 data object SettingsScreen : NavKey
+
 
 @Composable
 fun NavigationRoot(
@@ -52,13 +59,26 @@ fun NavigationRoot(
                     }
                 }
 
+                is AddFoodItemScreen -> {
+                    NavEntry(key = key) {
+                        AddFoodItem(
+                            onBack = {
+                                backStack.removeLastOrNull()
+                            })
+                    }
+                }
+
                 is AddFoodScreen -> {
                     NavEntry(key = key) {
                         AddFood(
                             meal = key.meal,
                             onBack = {
                                 backStack.removeLastOrNull()
-                            })
+                            },
+                            onFoodItemClick = {
+                                backStack.add(AddFoodItemScreen(key.meal))
+                            }
+                        )
                     }
                 }
 

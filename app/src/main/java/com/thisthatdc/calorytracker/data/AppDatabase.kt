@@ -4,10 +4,12 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.thisthatdc.calorytracker.data.food.Food
+import com.thisthatdc.calorytracker.data.food.FoodEaten
 import com.thisthatdc.calorytracker.data.settings.Settings
 import com.thisthatdc.calorytracker.data.settings.SettingsDao
 
-@Database(entities = [Settings::class], version = 1, exportSchema = true)
+@Database(entities = [Settings::class, Food::class, FoodEaten::class], version = 1, exportSchema = true)
 abstract class AppDatabase : RoomDatabase() {
     abstract val settingsDao: SettingsDao
 

@@ -1,4 +1,4 @@
-package com.thisthatdc.calorytracker.pages
+package com.thisthatdc.calorytracker.data.food
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -24,8 +24,6 @@ data class HomeState(
     val maxProtein: Int = 100,
     val maxCarbs: Int = 100
 )
-
-
 
 class HomeViewModel(
     settingsDao: SettingsDao

@@ -33,6 +33,9 @@ import com.thisthatdc.calorytracker.components.FoodList
 import com.thisthatdc.calorytracker.components.MacroState
 import com.thisthatdc.calorytracker.components.Macros
 import com.thisthatdc.calorytracker.components.Meals
+import com.thisthatdc.calorytracker.data.food.HomeEvent
+import com.thisthatdc.calorytracker.data.food.HomeState
+import com.thisthatdc.calorytracker.data.food.HomeViewModel
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
 
 @OptIn(ExperimentalMaterial3Api::class)

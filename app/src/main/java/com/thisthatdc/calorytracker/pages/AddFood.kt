@@ -4,9 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -17,12 +14,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SearchBar
-import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SearchBarDefaults.InputField
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults.pinnedScrollBehavior
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
@@ -40,7 +34,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.thisthatdc.calorytracker.components.DateBar
 import com.thisthatdc.calorytracker.components.Meals
-import com.thisthatdc.calorytracker.data.settings.SettingsEvent
 import com.thisthatdc.calorytracker.tabs.AllTab
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
 
@@ -48,15 +41,20 @@ enum class Tabs(
     val title: String,
     val component: @Composable () -> Unit
 ) {
-    ALL(title="All", component = ::AllTab),
-    YOUR_FOOD(title="Your food", component = {
+    ALL(title = "All", component = ::AllTab),
+    YOUR_FOOD(title = "Your food", component = {
         DateBar()
     }),
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddFood(modifier: Modifier = Modifier, meal: Meals, onBack: () -> Unit,) {
+fun AddFood(
+    modifier: Modifier = Modifier,
+    meal: Meals,
+    onBack: () -> Unit,
+    onFoodItemClick: () -> Unit
+) {
     val scrollBehavior = pinnedScrollBehavior(rememberTopAppBarState())
     var selectedDestination by rememberSaveable { mutableIntStateOf(0) }
     var textFieldState by rememberSaveable { mutableStateOf("") }
@@ -82,7 +80,7 @@ fun AddFood(modifier: Modifier = Modifier, meal: Meals, onBack: () -> Unit,) {
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* do something */ }) {
+                    IconButton(onClick = { onFoodItemClick() }) {
                         Icon(
                             imageVector = Icons.Default.Add,
                             contentDescription = "Localized description"
@@ -103,7 +101,7 @@ fun AddFood(modifier: Modifier = Modifier, meal: Meals, onBack: () -> Unit,) {
                 modifier = Modifier.fillMaxWidth(),
                 query = textFieldState,
                 onQueryChange = { textFieldState = it },
-                onSearch = {  },
+                onSearch = { },
                 expanded = false,
                 onExpandedChange = {},
                 enabled = true,
@@ -145,6 +143,6 @@ fun AddFood(modifier: Modifier = Modifier, meal: Meals, onBack: () -> Unit,) {
 @Composable
 fun AddFoodPreview() {
     CaloryTrackerTheme {
-        AddFood(meal = Meals.Breakfast, onBack = {})
+        AddFood(meal = Meals.Breakfast, onBack = {}, onFoodItemClick = {})
     }
 }
