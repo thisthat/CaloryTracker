@@ -15,14 +15,14 @@ import com.thisthatdc.calorytracker.pages.Settings
 import kotlinx.serialization.Serializable
 
 @Serializable
-data object HomeScreen: NavKey
+data object HomeScreen : NavKey
 
 
 @Serializable
-data class AddFoodScreen(val meal: Meals): NavKey
+data class AddFoodScreen(val meal: Meals) : NavKey
 
 @Serializable
-data object SettingsScreen: NavKey
+data object SettingsScreen : NavKey
 
 @Composable
 fun NavigationRoot(
@@ -30,6 +30,7 @@ fun NavigationRoot(
 ) {
     // initial screen
     val backStack = rememberNavBackStack(HomeScreen)
+
     NavDisplay(
         backStack = backStack,
         entryDecorators = listOf(
@@ -37,7 +38,7 @@ fun NavigationRoot(
             rememberViewModelStoreNavEntryDecorator(),
         ),
         entryProvider = { key ->
-            when(key) {
+            when (key) {
                 is HomeScreen -> {
                     NavEntry(key = key) {
                         Home(
@@ -50,11 +51,17 @@ fun NavigationRoot(
                         )
                     }
                 }
+
                 is AddFoodScreen -> {
                     NavEntry(key = key) {
-                        AddFood(meal = key.meal)
+                        AddFood(
+                            meal = key.meal,
+                            onBack = {
+                                backStack.removeLastOrNull()
+                            })
                     }
                 }
+
                 is SettingsScreen -> {
                     NavEntry(key = key) {
                         Settings(
@@ -64,6 +71,7 @@ fun NavigationRoot(
                         )
                     }
                 }
+
                 else -> throw RuntimeException("Invalid routing key")
             }
         }

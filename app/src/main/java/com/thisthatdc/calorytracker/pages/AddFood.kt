@@ -8,6 +8,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -39,6 +40,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.thisthatdc.calorytracker.components.DateBar
 import com.thisthatdc.calorytracker.components.Meals
+import com.thisthatdc.calorytracker.data.settings.SettingsEvent
 import com.thisthatdc.calorytracker.tabs.AllTab
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
 
@@ -54,7 +56,7 @@ enum class Tabs(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddFood(modifier: Modifier = Modifier, meal: Meals) {
+fun AddFood(modifier: Modifier = Modifier, meal: Meals, onBack: () -> Unit,) {
     val scrollBehavior = pinnedScrollBehavior(rememberTopAppBarState())
     var selectedDestination by rememberSaveable { mutableIntStateOf(0) }
     var textFieldState by rememberSaveable { mutableStateOf("") }
@@ -68,6 +70,16 @@ fun AddFood(modifier: Modifier = Modifier, meal: Meals) {
                 ),
                 title = {
                     Text("Find ${meal.name} Food")
+                },
+                navigationIcon = {
+                    IconButton(onClick = {
+                        onBack()
+                    }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "back"
+                        )
+                    }
                 },
                 actions = {
                     IconButton(onClick = { /* do something */ }) {
@@ -133,6 +145,6 @@ fun AddFood(modifier: Modifier = Modifier, meal: Meals) {
 @Composable
 fun AddFoodPreview() {
     CaloryTrackerTheme {
-        AddFood(meal = Meals.Breakfast)
+        AddFood(meal = Meals.Breakfast, onBack = {})
     }
 }

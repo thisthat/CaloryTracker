@@ -1,5 +1,6 @@
 package com.thisthatdc.calorytracker.data.settings
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -17,26 +18,32 @@ import kotlinx.coroutines.withContext
 
 class SettingsViewModel(
     private val dao: SettingsDao
-): ViewModel() {
+) : ViewModel() {
 
     private val _settings = dao.get()
+    private var firstLoad = true;
     private val _state = MutableStateFlow(SettingsState())
 
     val state = combine(_state, _settings) { state, settings ->
-        if (settings != null) {
-             state.copy(
-                 calories = settings.calories,
-                 fat = settings.fat,
-                 protein = settings.protein,
-                 carbs = settings.carbs
-             )
+        Log.d("SettingsViewModel", "state=$state, settings=$settings")
+        if (firstLoad && settings != null) {
+            firstLoad = false;
+            _state.update {
+                it.copy(
+                    calories = settings.calories,
+                    fat = settings.fat,
+                    protein = settings.protein,
+                    carbs = settings.carbs
+                )
+            }
+            _state.value
         } else {
-            state
+            _state.value
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), SettingsState())
 
     fun onEvent(event: SettingsEvent) {
-        when(event) {
+        when (event) {
             SettingsEvent.SaveSettings -> {
                 viewModelScope.launch {
                     val currentSettings = _settings.firstOrNull()
@@ -52,26 +59,37 @@ class SettingsViewModel(
                     }
                 }
             }
+
             is SettingsEvent.SetCalories -> {
-                _state.update { it.copy(
-                    calories = event.calories
-                ) }
+                _state.update {
+                    it.copy(
+                        calories = event.calories
+                    )
+                }
             }
 
             is SettingsEvent.SetCarbs -> {
-                _state.update { it.copy(
-                    carbs = event.carbs
-                ) }
+                _state.update {
+                    it.copy(
+                        carbs = event.carbs
+                    )
+                }
             }
+
             is SettingsEvent.SetFat -> {
-                _state.update { it.copy(
-                    fat = event.fat
-                ) }
+                _state.update {
+                    it.copy(
+                        fat = event.fat
+                    )
+                }
             }
+
             is SettingsEvent.SetProtein -> {
-                _state.update { it.copy(
-                    protein = event.protein
-                ) }
+                _state.update {
+                    it.copy(
+                        protein = event.protein
+                    )
+                }
             }
         }
     }
@@ -83,7 +101,8 @@ class SettingsViewModel(
                 modelClass: Class<T>,
                 extras: CreationExtras
             ): T {
-                val application = checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
+                val application =
+                    checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
                 val db = AppDatabase.getDatabase(application)
                 return SettingsViewModel(db.settingsDao) as T
             }

@@ -1,5 +1,6 @@
 package com.thisthatdc.calorytracker.pages
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -108,24 +109,32 @@ fun SettingsScreen(
                     MacroNutrient.Protein -> state.protein
                     MacroNutrient.Fat -> state.fat
                     MacroNutrient.Carbs -> state.carbs
-
                 }
+                Log.d("SettingsScreen", "macro=$macro, limit=$limit, value=$value")
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Slider(
-                        value = value.toFloat(),
-                        onValueChange = { onEvent(handleEvent(macro,it.toInt())) },
-                        valueRange = limit,
-                        steps = 39,
-                        modifier = Modifier.weight(1f),
-                        colors = SliderDefaults.colors(
-                            thumbColor = macro.color,
-                            activeTrackColor = macro.color,
+                    Column(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(
+                            text = macro.name,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.widthIn(min = 80.dp)
                         )
-                    )
+                        Slider(
+                            value = value.toFloat(),
+                            onValueChange = { onEvent(handleEvent(macro,it.toInt())) },
+                            valueRange = limit,
+                            steps = 39,
+                            colors = SliderDefaults.colors(
+                                thumbColor = macro.color,
+                                activeTrackColor = macro.color,
+                            ),
+                        )
+                    }
                     Text(
                         text = "$value ${macro.unit}",
                         style = MaterialTheme.typography.bodyLarge,
@@ -138,18 +147,18 @@ fun SettingsScreen(
 }
 
 fun handleEvent(macroNutrient: MacroNutrient, value: Int): SettingsEvent {
-    when (macroNutrient) {
+    return when (macroNutrient) {
         MacroNutrient.Calories -> {
-            return SettingsEvent.SetCalories(value)
+            SettingsEvent.SetCalories(value)
         }
         MacroNutrient.Protein -> {
-            return SettingsEvent.SetProtein(value)
+            SettingsEvent.SetProtein(value)
         }
         MacroNutrient.Fat -> {
-            return SettingsEvent.SetFat(value)
+            SettingsEvent.SetFat(value)
         }
         MacroNutrient.Carbs -> {
-            return SettingsEvent.SetCarbs(value)
+            SettingsEvent.SetCarbs(value)
         }
     }
 }
