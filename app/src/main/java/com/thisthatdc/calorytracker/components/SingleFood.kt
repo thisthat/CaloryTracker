@@ -19,10 +19,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.thisthatdc.calorytracker.data.food.Food
+import com.thisthatdc.calorytracker.data.food.Unit
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
 
 @Composable
-fun SingleFood(modifier: Modifier = Modifier) {
+fun SingleFood(modifier: Modifier = Modifier, food: Food) {
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -42,7 +44,7 @@ fun SingleFood(modifier: Modifier = Modifier) {
                 modifier = modifier.weight(0.8f)
             ) {
                 Text(
-                    "Cavolo Rosso",
+                    food.name,
                     fontSize = 10.sp,
                     modifier = modifier.padding(start = 20.dp)
                 )
@@ -75,7 +77,19 @@ fun SingleFoodPreview() {
             Row(
                 modifier = Modifier.padding(innerPadding)
             ) {
-                SingleFood()
+                SingleFood(
+                    food = Food(
+                        uid = 0,
+                        name = "Cavolo Rosso",
+                        unit = Unit.GRAMS,
+                        calories = 100,
+                        carbs = 10,
+                        fat = 10,
+                        protein = 10,
+                        sugar = 10,
+                        fiber = 20,
+                    )
+                )
             }
         }
     }

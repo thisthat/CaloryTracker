@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "dd267e17220ef413ed660385eaacc301",
+    "identityHash": "74ae27430828b1bb5cda6498514676d9",
     "entities": [
       {
         "tableName": "settings",
@@ -48,7 +48,7 @@
       },
       {
         "tableName": "food",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uid` INTEGER NOT NULL, `name` TEXT NOT NULL, `image` TEXT NOT NULL, `servingUnit` TEXT NOT NULL, `calories` INTEGER NOT NULL, `carbs` INTEGER NOT NULL, `fat` INTEGER NOT NULL, `protein` INTEGER NOT NULL, `sugar` INTEGER NOT NULL, `fiber` INTEGER NOT NULL, PRIMARY KEY(`uid`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uid` INTEGER NOT NULL, `name` TEXT NOT NULL, `servingUnit` TEXT NOT NULL, `calories` INTEGER NOT NULL, `carbs` INTEGER NOT NULL, `fat` INTEGER NOT NULL, `protein` INTEGER NOT NULL, `sugar` INTEGER NOT NULL, `fiber` INTEGER NOT NULL, PRIMARY KEY(`uid`))",
         "fields": [
           {
             "fieldPath": "uid",
@@ -59,12 +59,6 @@
           {
             "fieldPath": "name",
             "columnName": "name",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "image",
-            "columnName": "image",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -163,7 +157,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'dd267e17220ef413ed660385eaacc301')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '74ae27430828b1bb5cda6498514676d9')"
     ]
   }
 }

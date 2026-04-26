@@ -64,7 +64,8 @@ fun NavigationRoot(
                         AddFoodItem(
                             onBack = {
                                 backStack.removeLastOrNull()
-                            })
+                            },
+                        )
                     }
                 }
 

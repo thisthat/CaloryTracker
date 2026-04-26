@@ -3,11 +3,10 @@ package com.thisthatdc.calorytracker.data.food
 
 import androidx.room.ColumnInfo;
 import androidx.room.Dao
-import androidx.room.Embedded
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 import androidx.room.Query
-import androidx.room.Relation
+import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 
 // Everything is 100 g/ml -> we normalize at input
@@ -20,7 +19,6 @@ enum class Unit(val unit: String) {
 data class Food (
     @PrimaryKey val uid: Long,
     @ColumnInfo(name = "name") val name: String,
-    @ColumnInfo(name = "image") val image: String,
     @ColumnInfo(name = "servingUnit") val unit: Unit,
     @ColumnInfo(name = "calories") val calories: Int,
     @ColumnInfo(name = "carbs") val carbs: Int,
@@ -32,8 +30,10 @@ data class Food (
 
 @Dao
 interface FoodDao {
-    @Query("SELECT * FROM food LIMIT 1")
-    fun get(): Flow<Food?>
+    @Query("SELECT * FROM food")
+    fun getAll(): Flow<List<Food>>
+    @Upsert
+    fun upsert(food: Food)
 }
 
 
@@ -48,7 +48,7 @@ data class FoodEaten (
 
 @Dao
 interface FoodEatenDao {
-    @Query("SELECT * FROM food_eaten LIMIT 1")
+    @Query("SELECT * FROM food_eaten")
     fun get(): Flow<FoodEaten?>
-    fun delete(foodEaten: FoodEaten)
+
 }

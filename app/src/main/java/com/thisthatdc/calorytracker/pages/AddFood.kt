@@ -22,6 +22,7 @@ import androidx.compose.material3.TopAppBarDefaults.pinnedScrollBehavior
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -32,14 +33,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.thisthatdc.calorytracker.components.DateBar
 import com.thisthatdc.calorytracker.components.Meals
+import com.thisthatdc.calorytracker.data.food.AddFoodViewModel
+import com.thisthatdc.calorytracker.data.food.Food
+import com.thisthatdc.calorytracker.data.settings.SettingsViewModel
 import com.thisthatdc.calorytracker.tabs.AllTab
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
 
 enum class Tabs(
     val title: String,
-    val component: @Composable () -> Unit
+    val component: @Composable (List<Food>) -> Unit
 ) {
     ALL(title = "All", component = ::AllTab),
     YOUR_FOOD(title = "Your food", component = {
@@ -53,7 +58,8 @@ fun AddFood(
     modifier: Modifier = Modifier,
     meal: Meals,
     onBack: () -> Unit,
-    onFoodItemClick: () -> Unit
+    onFoodItemClick: () -> Unit,
+    foods: List<Food>
 ) {
     val scrollBehavior = pinnedScrollBehavior(rememberTopAppBarState())
     var selectedDestination by rememberSaveable { mutableIntStateOf(0) }
@@ -131,18 +137,38 @@ fun AddFood(
             }
             Tabs.entries.forEachIndexed { index, elm ->
                 if (selectedDestination == index) {
-                    elm.component()
+                    elm.component(foods)
                 }
             }
         }
     }
 }
 
+@Composable
+fun AddFood(
+    modifier: Modifier = Modifier,
+    meal: Meals,
+    onBack: () -> Unit,
+    onFoodItemClick: () -> Unit,
+    viewModel: AddFoodViewModel = viewModel(factory = AddFoodViewModel.Factory)
+    ) {
+        val state by viewModel.state.collectAsState()
+        val foods by viewModel.foods.collectAsState()
+        AddFood(
+            foods = foods,
+            //onEvent = viewModel::onEvent,
+            onBack = onBack,
+            modifier = modifier,
+            meal = meal,
+            onFoodItemClick = onFoodItemClick,
+        )
+    }
+
 
 @Preview(showBackground = true)
 @Composable
 fun AddFoodPreview() {
     CaloryTrackerTheme {
-        AddFood(meal = Meals.Breakfast, onBack = {}, onFoodItemClick = {})
+        AddFood(meal = Meals.Breakfast, onBack = {}, onFoodItemClick = {}, foods = emptyList())
     }
 }
