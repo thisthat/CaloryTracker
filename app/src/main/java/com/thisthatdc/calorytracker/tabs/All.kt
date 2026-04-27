@@ -11,7 +11,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.thisthatdc.calorytracker.components.SingleFood
+import com.thisthatdc.calorytracker.data.food.DefinedBy
 import com.thisthatdc.calorytracker.data.food.Food
+import com.thisthatdc.calorytracker.data.food.Unit
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
 
 @Composable
@@ -23,14 +25,8 @@ fun AllTab(food: List<Food>, modifier: Modifier = Modifier) {
         LazyColumn(modifier = modifier
             .fillMaxWidth()
             .padding(start = 5.dp, end = 5.dp)) {
-//            item {
-//                SingleFood(modifier)
-//                SingleFood(modifier)
-//                SingleFood(modifier)
-//                SingleFood(modifier)
-//            }
             items(food) { f ->
-                SingleFood(modifier, f)
+                SingleFood(modifier, f, false)
             }
         }
     }
@@ -40,6 +36,20 @@ fun AllTab(food: List<Food>, modifier: Modifier = Modifier) {
 @Composable
 fun AllTabPreview() {
     CaloryTrackerTheme {
-        AllTab(food = emptyList())
+        AllTab(food = listOf(
+            Food(
+                uid = 0,
+                name = "Cavolo Rosso",
+                calories = 100,
+                carbs = 10,
+                fat = 10,
+                protein = 10,
+                unit = Unit.LIQUID,
+                sugar = 1,
+                fiber = 1,
+                definedBy = DefinedBy.USER,
+            )
+        )
+        )
     }
 }

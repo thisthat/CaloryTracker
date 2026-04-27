@@ -194,7 +194,10 @@ fun AddFoodItem(
             Spacer(modifier = Modifier.height(10.dp))
             FilledTonalButton(
                 modifier = Modifier.fillMaxWidth(0.95f),
-                onClick = { onEvent(AddFoodItemEvent.Save) }
+                onClick = {
+                    onEvent(AddFoodItemEvent.Save)
+                    onBack()
+                }
             ) {
                 Text("Save")
             }

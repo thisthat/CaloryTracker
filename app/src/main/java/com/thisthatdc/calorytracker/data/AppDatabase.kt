@@ -27,7 +27,7 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "calory_tracker_db"
-                ).build()
+                ).createFromAsset("database/initial.db").build()
                 INSTANCE = instance
                 instance
             }

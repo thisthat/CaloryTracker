@@ -18,13 +18,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.thisthatdc.calorytracker.ui.theme.CaloriesColor
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
+import com.thisthatdc.calorytracker.ui.theme.CarbsColor
+import com.thisthatdc.calorytracker.ui.theme.FatColor
+import com.thisthatdc.calorytracker.ui.theme.ProteinColor
 
 enum class MacroNutrient(val color: Color, val title: String, val unit: String = "g") {
-    Calories(Color(0xFF54a9fd), "Calories", "kcal"),
-    Protein(Color(0xFFa98dfe), "Protein", "g"),
-    Fat(Color(0xFFfc9c37), "Fat", "g"),
-    Carbs(Color(0xFF65d9e8), "Carbs", "g"),
+    Calories(CaloriesColor, "Calories", "kcal"),
+    Protein(ProteinColor, "Protein", "g"),
+    Fat(FatColor, "Fat", "g"),
+    Carbs(CarbsColor, "Carbs", "g"),
 }
 
 data class MacroState(

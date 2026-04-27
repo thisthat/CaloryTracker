@@ -8,7 +8,8 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import com.thisthatdc.calorytracker.components.Meals
+import com.thisthatdc.calorytracker.data.food.Meals
+
 import com.thisthatdc.calorytracker.pages.AddFood
 import com.thisthatdc.calorytracker.pages.AddFoodItem
 import com.thisthatdc.calorytracker.pages.Home

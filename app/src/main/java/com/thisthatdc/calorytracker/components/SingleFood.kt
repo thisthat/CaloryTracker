@@ -19,12 +19,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.thisthatdc.calorytracker.data.food.DefinedBy
 import com.thisthatdc.calorytracker.data.food.Food
 import com.thisthatdc.calorytracker.data.food.Unit
+import com.thisthatdc.calorytracker.ui.theme.CaloriesColor
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
+import com.thisthatdc.calorytracker.ui.theme.CarbsColor
+import com.thisthatdc.calorytracker.ui.theme.FatColor
+import com.thisthatdc.calorytracker.ui.theme.ProteinColor
 
 @Composable
-fun SingleFood(modifier: Modifier = Modifier, food: Food) {
+fun SingleFood(modifier: Modifier = Modifier, food: Food, showQuantity: Boolean = true) {
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -40,7 +45,7 @@ fun SingleFood(modifier: Modifier = Modifier, food: Food) {
                 modifier = modifier
             )
             Column(
-                verticalArrangement = Arrangement.spacedBy(0.dp),
+                verticalArrangement = Arrangement.spacedBy((-10).dp),
                 modifier = modifier.weight(0.8f)
             ) {
                 Text(
@@ -48,11 +53,47 @@ fun SingleFood(modifier: Modifier = Modifier, food: Food) {
                     fontSize = 10.sp,
                     modifier = modifier.padding(start = 20.dp)
                 )
-                Text(
-                    "30g • 9 Cal • 1 P • 2 F • 3 C",
-                    fontSize = 10.sp,
-                    modifier = modifier.padding(start = 20.dp)
-                )
+                Row(modifier = modifier.padding(start = 20.dp)) {
+                    // quantity
+                    if (showQuantity) {
+                        Text(
+                            "30g • ",
+                            fontSize = 10.sp,
+                        )
+                    }
+                    Text(
+                        "${food.calories}Cal",
+                        fontSize = 10.sp,
+                        color = CaloriesColor
+                    )
+                    Text(
+                        " • ",
+                        fontSize = 10.sp,
+                    )
+                    Text(
+                        "${food.protein}P",
+                        fontSize = 10.sp,
+                        color = ProteinColor
+                    )
+                    Text(
+                        " • ",
+                        fontSize = 10.sp,
+                    )
+                    Text(
+                        "${food.fat}F",
+                        fontSize = 10.sp,
+                        color = FatColor
+                    )
+                    Text(
+                        " • ",
+                        fontSize = 10.sp,
+                    )
+                    Text(
+                        "${food.carbs}C",
+                        fontSize = 10.sp,
+                        color = CarbsColor
+                    )
+                }
             }
             IconButton(
                 modifier = modifier.weight(0.1f),
@@ -88,6 +129,7 @@ fun SingleFoodPreview() {
                         protein = 10,
                         sugar = 10,
                         fiber = 20,
+                        definedBy = DefinedBy.USER,
                     )
                 )
             }

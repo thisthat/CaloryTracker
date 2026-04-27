@@ -21,6 +21,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.thisthatdc.calorytracker.data.food.Meals
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
 
 @Composable
@@ -53,12 +54,6 @@ fun FoodList(modifier: Modifier = Modifier, onFoodClick: (Meals) -> Unit) {
     }
 }
 
-enum class Meals(name: String) {
-    Breakfast("Breakfast"),
-    Lunch("Lunch"),
-    Snacks("Snacks"),
-    Dinner("Dinner"),
-}
 
 @Composable
 fun MacroMeal(modifier: Modifier = Modifier, macro: MacroNutrient) {

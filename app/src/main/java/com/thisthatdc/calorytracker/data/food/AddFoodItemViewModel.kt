@@ -112,6 +112,7 @@ class AddFoodItemViewModel(
                         protein = _state.value.protein,
                         sugar = _state.value.sugar,
                         fiber = _state.value.fiber,
+                        definedBy = DefinedBy.USER,
                     )
                     withContext(Dispatchers.IO) {
                         foodDao.upsert(f)

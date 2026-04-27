@@ -1,10 +1,10 @@
 package com.thisthatdc.calorytracker.data.food
 
 
-import androidx.room.ColumnInfo;
+import androidx.room.ColumnInfo
 import androidx.room.Dao
-import androidx.room.Entity;
-import androidx.room.PrimaryKey;
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
@@ -13,6 +13,11 @@ import kotlinx.coroutines.flow.Flow
 enum class Unit(val unit: String) {
     GRAMS("g"),
     LIQUID("ml")
+}
+
+enum class DefinedBy {
+    USER,
+    SYSTEM
 }
 
 @Entity(tableName = "food")
@@ -26,16 +31,27 @@ data class Food (
     @ColumnInfo(name = "protein") val protein: Int,
     @ColumnInfo(name = "sugar") val sugar: Int,
     @ColumnInfo(name = "fiber") val fiber: Int,
+    @ColumnInfo(name = "defined_by") val definedBy: DefinedBy,
 )
 
 @Dao
 interface FoodDao {
     @Query("SELECT * FROM food")
     fun getAll(): Flow<List<Food>>
+
+    @Query("SELECT * FROM food WHERE defined_by = 'USER'")
+    fun getAllUserDefined(): Flow<List<Food>>
     @Upsert
     fun upsert(food: Food)
 }
 
+
+enum class Meals(name: String) {
+    Breakfast("Breakfast"),
+    Lunch("Lunch"),
+    Snacks("Snacks"),
+    Dinner("Dinner"),
+}
 
 @Entity(tableName = "food_eaten")
 data class FoodEaten (
@@ -44,11 +60,11 @@ data class FoodEaten (
     @ColumnInfo(name = "created_at") val createdAt: Long,
     @ColumnInfo(name = "quantity") val quantity: Long,
     @ColumnInfo(name = "unit") val unit: Unit,
+    @ColumnInfo(name = "meal") val meal: Meals,
 )
 
 @Dao
 interface FoodEatenDao {
     @Query("SELECT * FROM food_eaten")
     fun get(): Flow<FoodEaten?>
-
 }

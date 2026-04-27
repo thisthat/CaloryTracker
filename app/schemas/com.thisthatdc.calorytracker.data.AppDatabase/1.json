@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "74ae27430828b1bb5cda6498514676d9",
+    "identityHash": "65306a1e48675d2a9ba881b60a767719",
     "entities": [
       {
         "tableName": "settings",
@@ -48,7 +48,7 @@
       },
       {
         "tableName": "food",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uid` INTEGER NOT NULL, `name` TEXT NOT NULL, `servingUnit` TEXT NOT NULL, `calories` INTEGER NOT NULL, `carbs` INTEGER NOT NULL, `fat` INTEGER NOT NULL, `protein` INTEGER NOT NULL, `sugar` INTEGER NOT NULL, `fiber` INTEGER NOT NULL, PRIMARY KEY(`uid`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uid` INTEGER NOT NULL, `name` TEXT NOT NULL, `servingUnit` TEXT NOT NULL, `calories` INTEGER NOT NULL, `carbs` INTEGER NOT NULL, `fat` INTEGER NOT NULL, `protein` INTEGER NOT NULL, `sugar` INTEGER NOT NULL, `fiber` INTEGER NOT NULL, `defined_by` TEXT NOT NULL, PRIMARY KEY(`uid`))",
         "fields": [
           {
             "fieldPath": "uid",
@@ -103,6 +103,12 @@
             "columnName": "fiber",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "definedBy",
+            "columnName": "defined_by",
+            "affinity": "TEXT",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -114,7 +120,7 @@
       },
       {
         "tableName": "food_eaten",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uid` INTEGER NOT NULL, `food_data` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, `quantity` INTEGER NOT NULL, `unit` TEXT NOT NULL, PRIMARY KEY(`uid`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uid` INTEGER NOT NULL, `food_data` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, `quantity` INTEGER NOT NULL, `unit` TEXT NOT NULL, `meal` TEXT NOT NULL, PRIMARY KEY(`uid`))",
         "fields": [
           {
             "fieldPath": "uid",
@@ -145,6 +151,12 @@
             "columnName": "unit",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "meal",
+            "columnName": "meal",
+            "affinity": "TEXT",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -157,7 +169,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '74ae27430828b1bb5cda6498514676d9')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '65306a1e48675d2a9ba881b60a767719')"
     ]
   }
 }
