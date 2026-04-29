@@ -34,16 +34,16 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.thisthatdc.calorytracker.components.DateBar
 import com.thisthatdc.calorytracker.data.food.AddFoodViewModel
 import com.thisthatdc.calorytracker.data.food.Food
+import com.thisthatdc.calorytracker.data.food.FoodExample
 import com.thisthatdc.calorytracker.data.food.Meals
 import com.thisthatdc.calorytracker.tabs.AllTab
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
 
 enum class Tabs(
     val title: String,
-    val component: @Composable (List<Food>) -> Unit
+    val component: @Composable (List<Food>, (Long) -> Unit) -> Unit
 ) {
     ALL(title = "All", component = ::AllTab),
     YOUR_FOOD(title = "Your food", component = ::AllTab),
@@ -56,6 +56,7 @@ fun AddFood(
     meal: Meals,
     onBack: () -> Unit,
     onFoodItemClick: () -> Unit,
+    onFoodSelected: (Long) -> Unit,
     foods: List<Food>,
     userDefinedFood: List<Food>,
 ) {
@@ -135,7 +136,7 @@ fun AddFood(
             }
             Tabs.entries.forEachIndexed { index, elm ->
                 if (selectedDestination == index) {
-                    elm.component(if (index == 0) foods else userDefinedFood)
+                    elm.component(if (index == 0) foods else userDefinedFood, onFoodSelected)
                 }
             }
         }
@@ -148,6 +149,7 @@ fun AddFood(
     meal: Meals,
     onBack: () -> Unit,
     onFoodItemClick: () -> Unit,
+    onFoodSelected: (Long) -> Unit,
     viewModel: AddFoodViewModel = viewModel(factory = AddFoodViewModel.Factory)
 ) {
     val state by viewModel.state.collectAsState()
@@ -161,6 +163,7 @@ fun AddFood(
         modifier = modifier,
         meal = meal,
         onFoodItemClick = onFoodItemClick,
+        onFoodSelected = onFoodSelected,
     )
 }
 
@@ -173,8 +176,9 @@ fun AddFoodPreview() {
             meal = Meals.Breakfast,
             onBack = {},
             onFoodItemClick = {},
-            foods = emptyList(),
-            userDefinedFood = emptyList()
+            onFoodSelected = {},
+            foods = FoodExample,
+            userDefinedFood = FoodExample
         )
     }
 }

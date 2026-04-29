@@ -38,12 +38,26 @@ data class Food (
 interface FoodDao {
     @Query("SELECT * FROM food")
     fun getAll(): Flow<List<Food>>
-
     @Query("SELECT * FROM food WHERE defined_by = 'USER'")
     fun getAllUserDefined(): Flow<List<Food>>
+    @Query("SELECT * FROM food WHERE uid = :id")
+    fun getById(id: Long): Flow<Food?>
     @Upsert
     fun upsert(food: Food)
 }
+
+val FoodExample = listOf(Food(
+    uid = 1,
+    name = "Cavolor Rosso",
+    unit = com.thisthatdc.calorytracker.data.food.Unit.GRAMS,
+    calories = 100,
+    carbs = 10,
+    fat = 5,
+    protein = 25,
+    sugar = 1,
+    fiber = 80,
+    definedBy = DefinedBy.USER
+))
 
 
 enum class Meals(name: String) {
@@ -59,7 +73,6 @@ data class FoodEaten (
     @ColumnInfo(name = "food_data") val foodId: Long,
     @ColumnInfo(name = "created_at") val createdAt: Long,
     @ColumnInfo(name = "quantity") val quantity: Long,
-    @ColumnInfo(name = "unit") val unit: Unit,
     @ColumnInfo(name = "meal") val meal: Meals,
 )
 
@@ -67,4 +80,7 @@ data class FoodEaten (
 interface FoodEatenDao {
     @Query("SELECT * FROM food_eaten")
     fun get(): Flow<FoodEaten?>
+
+    @Upsert
+    fun upsert(foodEaten: FoodEaten)
 }

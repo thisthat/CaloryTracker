@@ -12,6 +12,7 @@ import com.thisthatdc.calorytracker.data.food.Meals
 
 import com.thisthatdc.calorytracker.pages.AddFood
 import com.thisthatdc.calorytracker.pages.AddFoodItem
+import com.thisthatdc.calorytracker.pages.AddFoodMeal
 import com.thisthatdc.calorytracker.pages.Home
 import com.thisthatdc.calorytracker.pages.Settings
 import kotlinx.serialization.Serializable
@@ -26,6 +27,9 @@ data class AddFoodScreen(val meal: Meals) : NavKey
 
 @Serializable
 data class AddFoodItemScreen(val meal: Meals) : NavKey
+
+@Serializable
+data class AddFoodMealScreen(val meal: Meals, val foodId: Long) : NavKey
 
 
 @Serializable
@@ -70,6 +74,18 @@ fun NavigationRoot(
                     }
                 }
 
+                is AddFoodMealScreen -> {
+                    NavEntry(key = key) {
+                        AddFoodMeal(
+                            meals = key.meal,
+                            foodId = key.foodId,
+                            onBack = {
+                                backStack.removeLastOrNull()
+                            }
+                        )
+                    }
+                }
+
                 is AddFoodScreen -> {
                     NavEntry(key = key) {
                         AddFood(
@@ -79,6 +95,9 @@ fun NavigationRoot(
                             },
                             onFoodItemClick = {
                                 backStack.add(AddFoodItemScreen(key.meal))
+                            },
+                            onFoodSelected = { foodId ->
+                                backStack.add(AddFoodMealScreen(key.meal, foodId))
                             }
                         )
                     }

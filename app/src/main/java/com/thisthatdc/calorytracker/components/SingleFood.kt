@@ -19,9 +19,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.thisthatdc.calorytracker.data.food.DefinedBy
 import com.thisthatdc.calorytracker.data.food.Food
-import com.thisthatdc.calorytracker.data.food.Unit
+import com.thisthatdc.calorytracker.data.food.FoodExample
 import com.thisthatdc.calorytracker.ui.theme.CaloriesColor
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
 import com.thisthatdc.calorytracker.ui.theme.CarbsColor
@@ -29,7 +28,7 @@ import com.thisthatdc.calorytracker.ui.theme.FatColor
 import com.thisthatdc.calorytracker.ui.theme.ProteinColor
 
 @Composable
-fun SingleFood(modifier: Modifier = Modifier, food: Food, showQuantity: Boolean = true) {
+fun SingleFood(modifier: Modifier = Modifier, food: Food, showQuantity: Boolean = true, onAddFood: (Long) -> Unit = {}) {
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -97,7 +96,7 @@ fun SingleFood(modifier: Modifier = Modifier, food: Food, showQuantity: Boolean 
             }
             IconButton(
                 modifier = modifier.weight(0.1f),
-                onClick = { /* do something */ }
+                onClick = { onAddFood(food.uid) }
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
@@ -119,18 +118,7 @@ fun SingleFoodPreview() {
                 modifier = Modifier.padding(innerPadding)
             ) {
                 SingleFood(
-                    food = Food(
-                        uid = 0,
-                        name = "Cavolo Rosso",
-                        unit = Unit.GRAMS,
-                        calories = 100,
-                        carbs = 10,
-                        fat = 10,
-                        protein = 10,
-                        sugar = 10,
-                        fiber = 20,
-                        definedBy = DefinedBy.USER,
-                    )
+                    food = FoodExample[0],
                 )
             }
         }

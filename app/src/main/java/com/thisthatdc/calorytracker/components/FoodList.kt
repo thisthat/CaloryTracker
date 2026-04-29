@@ -56,21 +56,6 @@ fun FoodList(modifier: Modifier = Modifier, onFoodClick: (Meals) -> Unit) {
 
 
 @Composable
-fun MacroMeal(modifier: Modifier = Modifier, macro: MacroNutrient) {
-    Canvas(modifier = modifier.size(8.dp), onDraw = {
-        drawCircle(
-            color = macro.color,
-            center = Offset(size.width / 2f, size.height / 2f)
-        )
-    })
-    Text(
-        "227 / 312 Cal",
-        fontSize = 10.sp,
-    )
-}
-
-
-@Composable
 fun Meal(modifier: Modifier = Modifier, meal: Meals, onFoodClick: (Meals) -> Unit) {
     var items = arrayListOf<String>();
     Column(
@@ -78,17 +63,12 @@ fun Meal(modifier: Modifier = Modifier, meal: Meals, onFoodClick: (Meals) -> Uni
             .fillMaxWidth()
     ) {
         Text(text = meal.name, modifier = modifier.padding(start = 10.dp, top = 10.dp))
-        Row(
-            modifier = modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            MacroMeal(modifier = modifier, macro = MacroNutrient.Calories)
-            MacroMeal(modifier = modifier, macro = MacroNutrient.Protein)
-            MacroMeal(modifier = modifier, macro = MacroNutrient.Fat)
-            MacroMeal(modifier = modifier, macro = MacroNutrient.Carbs)
-        }
+        MacroList(modifier = modifier, state = MacroListState(
+            caloriesStatus = "312",
+            proteinStatus = "227",
+            fatStatus = "15",
+            carbsStatus = "39"
+        ))
         HorizontalDivider(thickness = 1.dp)
         for (item in items) {
             Text(text = item)
