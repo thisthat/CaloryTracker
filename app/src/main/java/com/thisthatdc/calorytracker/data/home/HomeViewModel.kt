@@ -1,11 +1,15 @@
-package com.thisthatdc.calorytracker.data.food
+package com.thisthatdc.calorytracker.data.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.thisthatdc.calorytracker.data.AppDatabase
+import com.thisthatdc.calorytracker.data.food.FoodEaten
+import com.thisthatdc.calorytracker.data.food.FoodEatenDao
+import com.thisthatdc.calorytracker.data.food.FoodState
 import com.thisthatdc.calorytracker.data.settings.SettingsDao
+import com.thisthatdc.calorytracker.util.Time
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -22,14 +26,17 @@ data class HomeState(
     val maxCalories: Int = 1300,
     val maxFat: Int = 50,
     val maxProtein: Int = 100,
-    val maxCarbs: Int = 100
+    val maxCarbs: Int = 100,
+    val food: List<FoodState> = emptyList()
 )
 
 class HomeViewModel(
-    settingsDao: SettingsDao
+    settingsDao: SettingsDao,
+    foodEatenDao: FoodEatenDao,
 ) : ViewModel() {
 
     private val _settings = settingsDao.get()
+    private val _food = foodEatenDao.getDate(Time.getCurrentStartingDayMillis(), Time.getNextStartingDayMillis())
     private val _state = MutableStateFlow(HomeState())
 
     val state = combine(_state, _settings) { state, settings ->
@@ -42,6 +49,13 @@ class HomeViewModel(
                     maxCarbs = settings.carbs
                 )
             }
+            _state.value
+        } else {
+            state
+        }
+    }.combine(_food) { state, food ->
+        if (food.isNotEmpty()) {
+            _state.update { it.copy(food = food) }
             _state.value
         } else {
             state
@@ -70,7 +84,7 @@ class HomeViewModel(
                 val application =
                     checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
                 val db = AppDatabase.getDatabase(application)
-                return HomeViewModel(db.settingsDao) as T
+                return HomeViewModel(db.settingsDao, db.foodEatenDao) as T
             }
         }
     }

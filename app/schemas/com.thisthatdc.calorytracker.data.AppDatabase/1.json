@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "168b7835294fee51716df32dab9a3cc8",
+    "identityHash": "de7419b86e138705e8a3b34c7cc52a19",
     "entities": [
       {
         "tableName": "settings",
@@ -120,7 +120,7 @@
       },
       {
         "tableName": "food_eaten",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uid` INTEGER NOT NULL, `food_data` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, `quantity` INTEGER NOT NULL, `meal` TEXT NOT NULL, PRIMARY KEY(`uid`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `food_data` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, `quantity` INTEGER NOT NULL, `meal` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "uid",
@@ -154,7 +154,7 @@
           }
         ],
         "primaryKey": {
-          "autoGenerate": false,
+          "autoGenerate": true,
           "columnNames": [
             "uid"
           ]
@@ -163,7 +163,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '168b7835294fee51716df32dab9a3cc8')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'de7419b86e138705e8a3b34c7cc52a19')"
     ]
   }
 }

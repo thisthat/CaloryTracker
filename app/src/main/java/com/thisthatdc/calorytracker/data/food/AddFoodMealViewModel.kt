@@ -64,7 +64,6 @@ class AddFoodMealViewModel(
                 if(_state.value.food == null) return
                 viewModelScope.launch {
                     val f = FoodEaten(
-                        uid = 0,
                         foodId = _state.value.food!!.uid,
                         createdAt = System.currentTimeMillis(),
                         quantity = _state.value.quantity,

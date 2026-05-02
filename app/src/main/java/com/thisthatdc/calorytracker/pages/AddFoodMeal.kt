@@ -150,6 +150,7 @@ fun AddFoodMeal(
                 onClick = {
                     onEvent(AddFoodMealEvent.Save)
                     onBack()
+                    onBack()
                 }
             ) {
                 Text("Save")

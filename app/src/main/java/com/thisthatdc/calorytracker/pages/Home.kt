@@ -1,5 +1,6 @@
 package com.thisthatdc.calorytracker.pages
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -32,9 +33,9 @@ import com.thisthatdc.calorytracker.components.DateNavigator
 import com.thisthatdc.calorytracker.components.FoodList
 import com.thisthatdc.calorytracker.components.MacroState
 import com.thisthatdc.calorytracker.components.Macros
-import com.thisthatdc.calorytracker.data.food.HomeEvent
-import com.thisthatdc.calorytracker.data.food.HomeState
-import com.thisthatdc.calorytracker.data.food.HomeViewModel
+import com.thisthatdc.calorytracker.data.home.HomeEvent
+import com.thisthatdc.calorytracker.data.home.HomeState
+import com.thisthatdc.calorytracker.data.home.HomeViewModel
 import com.thisthatdc.calorytracker.data.food.Meals
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
 
@@ -49,12 +50,18 @@ fun Home(
 ) {
     val scrollBehavior = pinnedScrollBehavior(rememberTopAppBarState())
     // TODO: fetch the current calories summing the food
+    // TODO: build up new state for downstream components
     val macroState = MacroState(
         maxCalories = state.maxCalories,
         maxFat = state.maxFat,
         maxProtein = state.maxProtein,
         maxCarbs = state.maxCarbs
     )
+    state.food.forEach { food ->
+        run {
+            Log.d("HomePage", "Food: $food")
+        }
+    }
     Scaffold(
         modifier = modifier,
         topBar = {
