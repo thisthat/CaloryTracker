@@ -17,7 +17,7 @@ import kotlinx.coroutines.withContext
 
 sealed interface AddFoodMealEvent {
     data class SetQuantity(val quantity: Long) : AddFoodMealEvent
-    object Save : AddFoodMealEvent
+    data class Save(val time: Long) : AddFoodMealEvent
 }
 
 data class AddFoodMealState(
@@ -26,7 +26,7 @@ data class AddFoodMealState(
 )
 
 class AddFoodMealViewModel(
-    private val foodDao: FoodDao,
+    foodDao: FoodDao,
     private val foodEatenDao: FoodEatenDao,
     private val meal: Meals,
     foodId: Long
@@ -60,12 +60,12 @@ class AddFoodMealViewModel(
                     )
                 }
             }
-            AddFoodMealEvent.Save -> {
+            is AddFoodMealEvent.Save -> {
                 if(_state.value.food == null) return
                 viewModelScope.launch {
                     val f = FoodEaten(
                         foodId = _state.value.food!!.uid,
-                        createdAt = System.currentTimeMillis(),
+                        createdAt = event.time,
                         quantity = _state.value.quantity,
                         meal = meal,
                     )

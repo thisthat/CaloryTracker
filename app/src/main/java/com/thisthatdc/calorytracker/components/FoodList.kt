@@ -1,31 +1,34 @@
 package com.thisthatdc.calorytracker.components
 
 import android.content.res.Configuration
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.thisthatdc.calorytracker.data.food.FoodState
 import com.thisthatdc.calorytracker.data.food.Meals
+import com.thisthatdc.calorytracker.data.home.HomeState
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
+import kotlin.math.ceil
 
 @Composable
-fun FoodList(modifier: Modifier = Modifier, onFoodClick: (Meals) -> Unit) {
+fun FoodList(modifier: Modifier = Modifier, onFoodClick: (Meals, Long) -> Unit, state: HomeState) {
+    val breakfast = state.food.filter { it.meal == Meals.Breakfast }
+    val lunch = state.food.filter { it.meal == Meals.Lunch }
+    val snacks = state.food.filter { it.meal == Meals.Snacks }
+    val dinner = state.food.filter { it.meal == Meals.Dinner }
+    val day = state.day.toInstant().toEpochMilli()
     Column(
         modifier = modifier
             .fillMaxWidth(),
@@ -35,47 +38,73 @@ fun FoodList(modifier: Modifier = Modifier, onFoodClick: (Meals) -> Unit) {
             modifier = modifier.background(MaterialTheme.colorScheme.surfaceContainer),
             meal = Meals.Breakfast,
             onFoodClick = onFoodClick,
+            food = breakfast,
+            day = day,
         )
         Meal(
             modifier = modifier.background(MaterialTheme.colorScheme.surfaceContainer),
             meal = Meals.Lunch,
             onFoodClick = onFoodClick,
+            food = lunch,
+            day = day,
         )
         Meal(
             modifier = modifier.background(MaterialTheme.colorScheme.surfaceContainer),
             meal = Meals.Snacks,
             onFoodClick = onFoodClick,
+            food = snacks,
+            day = day,
         )
         Meal(
             modifier = modifier.background(MaterialTheme.colorScheme.surfaceContainer),
             meal = Meals.Dinner,
             onFoodClick = onFoodClick,
+            food = dinner,
+            day = day,
         )
     }
 }
 
 
 @Composable
-fun Meal(modifier: Modifier = Modifier, meal: Meals, onFoodClick: (Meals) -> Unit) {
-    var items = arrayListOf<String>();
+fun Meal(
+    modifier: Modifier = Modifier,
+    meal: Meals,
+    food: List<FoodState>,
+    day: Long,
+    onFoodClick: (Meals, Long) -> Unit
+) {
+    var totalCalories = 0
+    var totalFat = 0
+    var totalProtein = 0
+    var totalCarbs = 0
+    food.forEach { food ->
+        val ratio = food.quantity / 100f
+        totalCalories += ceil((ratio * food.calories).toDouble()).toInt()
+        totalFat += ceil((ratio * food.fat).toDouble()).toInt()
+        totalProtein += ceil((ratio * food.protein).toDouble()).toInt()
+        totalCarbs += ceil((ratio * food.carbs).toDouble()).toInt()
+    }
     Column(
         modifier = modifier
             .fillMaxWidth()
     ) {
         Text(text = meal.name, modifier = modifier.padding(start = 10.dp, top = 10.dp))
-        MacroList(modifier = modifier, state = MacroListState(
-            caloriesStatus = "312",
-            proteinStatus = "227",
-            fatStatus = "15",
-            carbsStatus = "39"
-        ))
+        MacroList(
+            modifier = modifier, state = MacroListState(
+                caloriesStatus = "$totalCalories",
+                proteinStatus = "$totalProtein",
+                fatStatus = "$totalFat",
+                carbsStatus = "$totalCarbs"
+            )
+        )
         HorizontalDivider(thickness = 1.dp)
-        for (item in items) {
-            Text(text = item)
+        for (f in food) {
+            SingleFood(modifier = Modifier, food = f)
             HorizontalDivider(thickness = 1.dp)
         }
         TextButton(
-            onClick = { onFoodClick(meal) }
+            onClick = { onFoodClick(meal, day) }
         ) {
             Text("Add Food")
         }
@@ -93,7 +122,7 @@ fun FoodListPreview() {
             Row(
                 modifier = Modifier.padding(innerPadding)
             ) {
-                FoodList(onFoodClick = {})
+                FoodList(onFoodClick = { _: Meals, _: Long -> }, state = HomeState())
             }
         }
     }

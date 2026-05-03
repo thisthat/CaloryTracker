@@ -22,14 +22,14 @@ data object HomeScreen : NavKey
 
 
 @Serializable
-data class AddFoodScreen(val meal: Meals) : NavKey
+data class AddFoodScreen(val meal: Meals, val day: Long) : NavKey
 
 
 @Serializable
 data class AddFoodItemScreen(val meal: Meals) : NavKey
 
 @Serializable
-data class AddFoodMealScreen(val meal: Meals, val foodId: Long) : NavKey
+data class AddFoodMealScreen(val meal: Meals, val foodId: Long, val day: Long) : NavKey
 
 
 @Serializable
@@ -54,8 +54,8 @@ fun NavigationRoot(
                 is HomeScreen -> {
                     NavEntry(key = key) {
                         Home(
-                            onFoodClick = { meal ->
-                                backStack.add(AddFoodScreen(meal))
+                            onFoodClick = { meal, day ->
+                                backStack.add(AddFoodScreen(meal, day))
                             },
                             onSettingsClick = {
                                 backStack.add(SettingsScreen)
@@ -79,6 +79,7 @@ fun NavigationRoot(
                         AddFoodMeal(
                             meals = key.meal,
                             foodId = key.foodId,
+                            day = key.day,
                             onBack = {
                                 backStack.removeLastOrNull()
                             }
@@ -97,7 +98,7 @@ fun NavigationRoot(
                                 backStack.add(AddFoodItemScreen(key.meal))
                             },
                             onFoodSelected = { foodId ->
-                                backStack.add(AddFoodMealScreen(key.meal, foodId))
+                                backStack.add(AddFoodMealScreen(key.meal, foodId, key.day))
                             }
                         )
                     }

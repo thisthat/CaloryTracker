@@ -21,14 +21,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.thisthatdc.calorytracker.data.food.Food
 import com.thisthatdc.calorytracker.data.food.FoodExample
+import com.thisthatdc.calorytracker.data.food.FoodState
 import com.thisthatdc.calorytracker.ui.theme.CaloriesColor
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
 import com.thisthatdc.calorytracker.ui.theme.CarbsColor
 import com.thisthatdc.calorytracker.ui.theme.FatColor
 import com.thisthatdc.calorytracker.ui.theme.ProteinColor
+import kotlin.math.ceil
 
 @Composable
-fun SingleFood(modifier: Modifier = Modifier, food: Food, showQuantity: Boolean = true, onAddFood: (Long) -> Unit = {}) {
+fun SingleFood(modifier: Modifier = Modifier, food: Food, quantity: Int = 0, onAddFood: (Long) -> Unit = {}) {
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -54,9 +56,9 @@ fun SingleFood(modifier: Modifier = Modifier, food: Food, showQuantity: Boolean 
                 )
                 Row(modifier = modifier.padding(start = 20.dp)) {
                     // quantity
-                    if (showQuantity) {
+                    if (quantity > 0) {
                         Text(
-                            "30g • ",
+                            "${quantity}${food.unit.unit} • ",
                             fontSize = 10.sp,
                         )
                     }
@@ -94,19 +96,45 @@ fun SingleFood(modifier: Modifier = Modifier, food: Food, showQuantity: Boolean 
                     )
                 }
             }
-            IconButton(
-                modifier = modifier.weight(0.1f),
-                onClick = { onAddFood(food.uid) }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Localized description"
-                )
+            if(quantity == 0) {
+                IconButton(
+                    modifier = modifier.weight(0.1f),
+                    onClick = { onAddFood(food.uid) }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Localized description"
+                    )
+                }
             }
         }
     }
     HorizontalDivider(thickness = 2.dp)
 }
+
+@Composable
+fun SingleFood(modifier: Modifier = Modifier, food: FoodState) {
+    val ratio = food.quantity / 100f
+    val f = Food(
+        uid = food.uid,
+        name = food.name,
+        unit = food.unit,
+        calories = ceil((food.calories * ratio).toDouble()).toInt(),
+        carbs = ceil((food.carbs * ratio).toDouble()).toInt(),
+        fat = ceil((food.fat * ratio).toDouble()).toInt(),
+        protein = ceil((food.protein * ratio).toDouble()).toInt(),
+        sugar = ceil((food.sugar * ratio).toDouble()).toInt(),
+        fiber = ceil((food.fiber * ratio).toDouble()).toInt(),
+        definedBy = food.definedBy,
+    )
+    SingleFood(
+        modifier = modifier,
+        food = f,
+        quantity = food.quantity.toInt(),
+        onAddFood = {}
+    )
+}
+
 
 
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_MASK)

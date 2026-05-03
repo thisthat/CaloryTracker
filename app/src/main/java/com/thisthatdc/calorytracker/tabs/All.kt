@@ -27,7 +27,7 @@ fun AllTab(food: List<Food>, onAddFood: (Long) -> Unit, modifier: Modifier = Mod
                 .padding(start = 5.dp, end = 5.dp)
         ) {
             items(food) { f ->
-                SingleFood(modifier, f, false, onAddFood)
+                SingleFood(modifier = modifier, food = f, onAddFood = onAddFood)
             }
         }
     }

@@ -1,6 +1,7 @@
 package com.thisthatdc.calorytracker.components
 
 import android.content.res.Configuration
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,26 +20,36 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.thisthatdc.calorytracker.ui.theme.CaloriesColor
+import com.thisthatdc.calorytracker.ui.theme.CaloriesOverColor
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
 import com.thisthatdc.calorytracker.ui.theme.CarbsColor
+import com.thisthatdc.calorytracker.ui.theme.CarbsOverColor
 import com.thisthatdc.calorytracker.ui.theme.FatColor
+import com.thisthatdc.calorytracker.ui.theme.FatOverColor
 import com.thisthatdc.calorytracker.ui.theme.ProteinColor
+import com.thisthatdc.calorytracker.ui.theme.ProteinOverColor
+import kotlin.math.abs
 
-enum class MacroNutrient(val color: Color, val title: String, val unit: String = "g") {
-    Calories(CaloriesColor, "Calories", "kcal"),
-    Protein(ProteinColor, "Protein", "g"),
-    Fat(FatColor, "Fat", "g"),
-    Carbs(CarbsColor, "Carbs", "g"),
+enum class MacroNutrient(
+    val color: Color,
+    val overColor: Color,
+    val title: String,
+    val unit: String = "g"
+) {
+    Calories(CaloriesColor, CaloriesOverColor, "Calories", "kcal"),
+    Protein(ProteinColor, ProteinOverColor, "Protein", "g"),
+    Fat(FatColor, FatOverColor, "Fat", "g"),
+    Carbs(CarbsColor, CarbsOverColor, "Carbs", "g"),
 }
 
 data class MacroState(
-    val currentCalories: Int = 10,
+    val currentCalories: Int = 0,
     val maxCalories: Int = 1300,
-    val currentFat: Int = 25,
+    val currentFat: Int = 0,
     val maxFat: Int = 50,
-    val currentProtein: Int = 25,
+    val currentProtein: Int = 0,
     val maxProtein: Int = 100,
-    val currentCarbs: Int = 99,
+    val currentCarbs: Int = 0,
     val maxCarbs: Int = 100
 )
 
@@ -81,6 +92,8 @@ fun Macros(modifier: Modifier = Modifier, state: MacroState) {
 fun Macro(modifier: Modifier = Modifier, macro: MacroNutrient, state: MacroStateItem) {
     val remaining = state.maxVal - state.currentVal
     val progress = state.currentVal.toFloat() / state.maxVal.toFloat()
+    Log.d("Macros", "progress: $progress")
+    val isOver = remaining < 0
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy((-10).dp)
@@ -94,24 +107,41 @@ fun Macro(modifier: Modifier = Modifier, macro: MacroNutrient, state: MacroState
                 macro.name,
                 fontSize = 14.sp,
             )
+            var msg = "${remaining}${macro.unit} remaining"
+            if (isOver) {
+                msg = "${abs(remaining)}${macro.unit} over"
+            }
             Text(
-                "${remaining}${macro.unit} remaining",
+                msg,
                 fontSize = 10.sp,
                 modifier = modifier.padding(start = 20.dp)
             )
+
         }
         Row(
             modifier = modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            LinearProgressIndicator(
-                progress = { progress },
-                modifier = modifier.fillMaxWidth(0.8f),
-                color = macro.color,
-                trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                gapSize = 0.dp,
-            )
+            if (isOver) {
+                val p = 1 - (progress % 1)
+                Log.d("Progress", "New Progress $p")
+                LinearProgressIndicator(
+                    progress = { p },
+                    modifier = modifier.fillMaxWidth(0.8f),
+                    color = macro.color,
+                    trackColor = macro.overColor,
+                    gapSize = 0.dp,
+                )
+            } else {
+                LinearProgressIndicator(
+                    progress = { progress },
+                    modifier = modifier.fillMaxWidth(0.8f),
+                    color = macro.color,
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                    gapSize = 0.dp,
+                )
+            }
             Text(
                 "${state.currentVal}/${state.maxVal} ${macro.unit}",
                 fontSize = 8.sp,
@@ -131,12 +161,21 @@ fun Macro(modifier: Modifier = Modifier, macro: MacroNutrient, state: MacroState
 @Composable
 fun MacrosPreview() {
     CaloryTrackerTheme(darkTheme = true) {
-        Scaffold() { innerPadding ->
+        Scaffold { innerPadding ->
             Row(
                 modifier = Modifier.padding(innerPadding)
             ) {
                 Macros(
-                    state = MacroState()
+                    state = MacroState(
+                        currentCalories = 120,
+                        currentProtein = 120,
+                        currentFat = 120,
+                        currentCarbs = 120,
+                        maxCalories = 100,
+                        maxProtein = 100,
+                        maxFat = 100,
+                        maxCarbs = 100,
+                    )
                 )
             }
         }

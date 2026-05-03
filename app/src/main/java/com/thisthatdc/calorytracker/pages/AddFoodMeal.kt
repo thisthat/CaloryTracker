@@ -1,6 +1,5 @@
 package com.thisthatdc.calorytracker.pages
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -51,7 +50,8 @@ fun AddFoodMeal(
     modifier: Modifier = Modifier,
     state: AddFoodMealState,
     onEvent: (AddFoodMealEvent) -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    day: Long,
 ) {
     if (state.food == null) {
         CircularProgressIndicator(
@@ -62,7 +62,7 @@ fun AddFoodMeal(
         return
     }
     val ratio = state.quantity / 100f
-    var macroState = MacroListState(
+    val macroState = MacroListState(
         caloriesStatus = "${ratio * state.food.calories}",
         proteinStatus = "${ratio * state.food.protein}",
         fatStatus = "${ratio * state.food.fat}",
@@ -148,7 +148,7 @@ fun AddFoodMeal(
             FilledTonalButton(
                 modifier = Modifier.fillMaxWidth(0.95f),
                 onClick = {
-                    onEvent(AddFoodMealEvent.Save)
+                    onEvent(AddFoodMealEvent.Save(day))
                     onBack()
                     onBack()
                 }
@@ -166,6 +166,7 @@ fun AddFoodMeal(
     onBack: () -> Unit,
     meals: Meals,
     foodId: Long,
+    day: Long,
 ) {
     val viewModel: AddFoodMealViewModel =
         viewModel(factory = AddFoodMealViewModel.Factory(meals, foodId))
@@ -174,6 +175,7 @@ fun AddFoodMeal(
         state = state,
         onEvent = viewModel::onEvent,
         onBack = onBack,
+        day = day,
         modifier = modifier
     )
 }
@@ -184,9 +186,13 @@ fun AddFoodMeal(
 fun AddFoodMealPreview() {
     CaloryTrackerTheme {
         AddFoodMeal(
-            onBack = {}, state = AddFoodMealState(
+            onBack = {},
+            state = AddFoodMealState(
                 quantity = 90,
                 food = FoodExample[0],
-            ), onEvent = {})
+            ),
+            day = System.currentTimeMillis(),
+            onEvent = {}
+        )
     }
 }

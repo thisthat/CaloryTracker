@@ -1,6 +1,5 @@
 package com.thisthatdc.calorytracker.pages
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -33,35 +32,45 @@ import com.thisthatdc.calorytracker.components.DateNavigator
 import com.thisthatdc.calorytracker.components.FoodList
 import com.thisthatdc.calorytracker.components.MacroState
 import com.thisthatdc.calorytracker.components.Macros
+import com.thisthatdc.calorytracker.data.food.Meals
 import com.thisthatdc.calorytracker.data.home.HomeEvent
 import com.thisthatdc.calorytracker.data.home.HomeState
 import com.thisthatdc.calorytracker.data.home.HomeViewModel
-import com.thisthatdc.calorytracker.data.food.Meals
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
+import kotlin.math.ceil
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Home(
     modifier: Modifier = Modifier,
-    onFoodClick: (Meals) -> Unit,
+    onFoodClick: (Meals, Long) -> Unit,
     onSettingsClick: () -> Unit,
     state: HomeState,
     onEvent: (HomeEvent) -> Unit
 ) {
     val scrollBehavior = pinnedScrollBehavior(rememberTopAppBarState())
-    // TODO: fetch the current calories summing the food
-    // TODO: build up new state for downstream components
+    var totalCalories = 0
+    var totalFat = 0
+    var totalProtein = 0
+    var totalCarbs = 0
+    state.food.forEach { food ->
+        val ratio = food.quantity / 100f
+        totalCalories += ceil((ratio * food.calories).toDouble()).toInt()
+        totalFat += ceil((ratio * food.fat).toDouble()).toInt()
+        totalProtein += ceil((ratio * food.protein).toDouble()).toInt()
+        totalCarbs += ceil((ratio * food.carbs).toDouble()).toInt()
+    }
+
     val macroState = MacroState(
+        currentCalories = totalCalories,
         maxCalories = state.maxCalories,
+        currentFat = totalFat,
         maxFat = state.maxFat,
+        currentProtein = totalProtein,
         maxProtein = state.maxProtein,
+        currentCarbs = totalCarbs,
         maxCarbs = state.maxCarbs
     )
-    state.food.forEach { food ->
-        run {
-            Log.d("HomePage", "Food: $food")
-        }
-    }
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -92,7 +101,13 @@ fun Home(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             DateBar(modifier = modifier.padding(top = 10.dp))
-            DateNavigator()
+            DateNavigator(
+                modifier = modifier,
+                day = state.day,
+                onPrev = { onEvent(HomeEvent.PrevDate) },
+                onNext = { onEvent(HomeEvent.NextDate) },
+                onReset = { onEvent(HomeEvent.ResetDate) }
+            )
             LazyColumn(
                 modifier = modifier
                     .fillMaxWidth()
@@ -101,7 +116,7 @@ fun Home(
                 item {
                     Macros(modifier, macroState)
                     Spacer(Modifier.height(10.dp))
-                    FoodList(modifier, onFoodClick)
+                    FoodList(modifier, onFoodClick, state)
                 }
             }
         }
@@ -111,7 +126,7 @@ fun Home(
 @Composable
 fun Home(
     modifier: Modifier = Modifier,
-    onFoodClick: (Meals) -> Unit,
+    onFoodClick: (Meals, Long) -> Unit,
     onSettingsClick: () -> Unit,
     viewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory)
 ) {
@@ -130,7 +145,7 @@ fun Home(
 fun GreetingPreview() {
     CaloryTrackerTheme {
         Home(
-            onFoodClick = {},
+            onFoodClick = { _: Meals, _: Long -> },
             onSettingsClick = {},
             state = HomeState(),
             onEvent = {}

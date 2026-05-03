@@ -152,7 +152,6 @@ fun AddFood(
     onFoodSelected: (Long) -> Unit,
     viewModel: AddFoodViewModel = viewModel(factory = AddFoodViewModel.Factory)
 ) {
-    val state by viewModel.state.collectAsState()
     val foods by viewModel.foods.collectAsState()
     val userDefinedFood by viewModel.userDefinedFood.collectAsState()
     AddFood(
