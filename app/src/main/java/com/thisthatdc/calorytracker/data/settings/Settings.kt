@@ -7,6 +7,7 @@ import androidx.room.PrimaryKey;
 import androidx.room.Query
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
+import kotlinx.serialization.Serializable
 
 @Entity(tableName = "settings")
 data class Settings (

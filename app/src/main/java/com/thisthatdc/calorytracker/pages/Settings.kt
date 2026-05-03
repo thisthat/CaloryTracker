@@ -1,8 +1,6 @@
 package com.thisthatdc.calorytracker.pages
 
 import android.content.Intent
-import android.net.Uri
-import android.provider.DocumentsContract
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -36,14 +34,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.thisthatdc.calorytracker.components.MacroNutrient
-import com.thisthatdc.calorytracker.data.food.AddFoodMealEvent
 import com.thisthatdc.calorytracker.data.settings.SettingsEvent
 import com.thisthatdc.calorytracker.data.settings.SettingsState
 import com.thisthatdc.calorytracker.data.settings.SettingsViewModel
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
+import com.thisthatdc.calorytracker.util.JsonWriter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -83,11 +80,7 @@ fun SettingsScreen(
             context.contentResolver.openOutputStream(it)?.let { outputStream ->
                 scope.launch {
                     withContext(Dispatchers.IO) {
-                        // TODO: serialize DB here
-                        outputStream.write("hey".toByteArray())
-                        outputStream.flush()
-                        outputStream.close()
-
+                        onEvent(SettingsEvent.SaveDB(outputStream))
                     }
                 }
             }
@@ -158,7 +151,7 @@ fun SettingsScreen(
                         )
                         Slider(
                             value = value.toFloat(),
-                            onValueChange = { onEvent(handleEvent(macro,it.toInt())) },
+                            onValueChange = { onEvent(handleEvent(macro, it.toInt())) },
                             valueRange = limit,
                             steps = 39,
                             colors = SliderDefaults.colors(
@@ -190,7 +183,7 @@ fun SettingsScreen(
 fun createNewDocumentIntent(): Intent {
     val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
         addCategory(Intent.CATEGORY_OPENABLE)
-        type = "html/txt"
+        type = "text/plain"
         putExtra(Intent.EXTRA_TITLE, "test-${System.currentTimeMillis()}.txt")
     }
     intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
@@ -204,12 +197,15 @@ fun handleEvent(macroNutrient: MacroNutrient, value: Int): SettingsEvent {
         MacroNutrient.Calories -> {
             SettingsEvent.SetCalories(value)
         }
+
         MacroNutrient.Protein -> {
             SettingsEvent.SetProtein(value)
         }
+
         MacroNutrient.Fat -> {
             SettingsEvent.SetFat(value)
         }
+
         MacroNutrient.Carbs -> {
             SettingsEvent.SetCarbs(value)
         }

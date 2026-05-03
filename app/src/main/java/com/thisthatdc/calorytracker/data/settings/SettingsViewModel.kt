@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.thisthatdc.calorytracker.data.AppDatabase
+import com.thisthatdc.calorytracker.data.food.FoodDao
+import com.thisthatdc.calorytracker.util.JsonWriter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -17,7 +19,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class SettingsViewModel(
-    private val dao: SettingsDao
+    private val dao: SettingsDao,
+    private val foodDao: FoodDao,
 ) : ViewModel() {
 
     private val _settings = dao.get()
@@ -91,6 +94,16 @@ class SettingsViewModel(
                     )
                 }
             }
+            is SettingsEvent.SaveDB -> {
+                try {
+                    JsonWriter.write(event.outputStream, state.value, foodDao.getAll())
+                } catch (e: Throwable) {
+                    Log.w("Json DB Exporter", e)
+                } finally {
+                    event.outputStream.flush()
+                    event.outputStream.close()
+                }
+            }
         }
     }
 
@@ -104,7 +117,7 @@ class SettingsViewModel(
                 val application =
                     checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
                 val db = AppDatabase.getDatabase(application)
-                return SettingsViewModel(db.settingsDao) as T
+                return SettingsViewModel(db.settingsDao, db.foodDao) as T
             }
         }
     }
