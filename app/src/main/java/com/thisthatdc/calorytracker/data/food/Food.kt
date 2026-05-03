@@ -8,21 +8,25 @@ import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
+import kotlinx.serialization.Serializable
 
 // Everything is 100 g/ml -> we normalize at input
+@Serializable
 enum class Unit(val unit: String) {
     GRAMS("g"),
     LIQUID("ml")
 }
 
+@Serializable
 enum class DefinedBy {
     USER,
     SYSTEM
 }
 
+@Serializable
 @Entity(tableName = "food")
 data class Food (
-    @PrimaryKey val uid: Long,
+    @PrimaryKey(autoGenerate = true) val uid: Long,
     @ColumnInfo(name = "name") val name: String,
     @ColumnInfo(name = "servingUnit") val unit: Unit,
     @ColumnInfo(name = "calories") val calories: Int,
@@ -67,6 +71,7 @@ enum class Meals(name: String) {
     Dinner("Dinner"),
 }
 
+@Serializable
 @Entity(tableName = "food_eaten")
 data class FoodEaten (
     @PrimaryKey(autoGenerate = true) val uid: Long = 0,
@@ -95,7 +100,7 @@ data class FoodState(
 @Dao
 interface FoodEatenDao {
     @Query("SELECT * FROM food_eaten")
-    fun get(): Flow<FoodEaten?>
+    fun getAll(): Flow<List<FoodEaten?>>
 
 
     @Query("SELECT fe.*, f.name, f.servingUnit, f.calories, f.carbs, f.fat, f.protein, f.sugar, f.fiber, f.defined_by FROM food_eaten fe, food f WHERE fe.food_data = f.uid AND created_at BETWEEN :from AND :to")

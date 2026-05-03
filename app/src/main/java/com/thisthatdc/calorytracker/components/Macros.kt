@@ -92,7 +92,6 @@ fun Macros(modifier: Modifier = Modifier, state: MacroState) {
 fun Macro(modifier: Modifier = Modifier, macro: MacroNutrient, state: MacroStateItem) {
     val remaining = state.maxVal - state.currentVal
     val progress = state.currentVal.toFloat() / state.maxVal.toFloat()
-    Log.d("Macros", "progress: $progress")
     val isOver = remaining < 0
     Column(
         modifier = modifier,
@@ -124,7 +123,7 @@ fun Macro(modifier: Modifier = Modifier, macro: MacroNutrient, state: MacroState
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             if (isOver) {
-                val p = 1 - (progress % 1)
+                val p = 1 - (progress - 1)
                 Log.d("Progress", "New Progress $p")
                 LinearProgressIndicator(
                     progress = { p },
