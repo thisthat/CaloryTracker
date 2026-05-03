@@ -100,7 +100,7 @@ fun Home(
             verticalArrangement = Arrangement.spacedBy(5.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            DateBar(modifier = modifier.padding(top = 10.dp))
+            DateBar(modifier = modifier.padding(top = 10.dp).fillMaxWidth(0.95f))
             DateNavigator(
                 modifier = modifier,
                 day = state.day,

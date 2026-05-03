@@ -1,6 +1,11 @@
 package com.thisthatdc.calorytracker.pages
 
+import android.content.Intent
+import android.net.Uri
+import android.provider.DocumentsContract
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,6 +15,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -24,16 +30,23 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.thisthatdc.calorytracker.components.MacroNutrient
+import com.thisthatdc.calorytracker.data.food.AddFoodMealEvent
 import com.thisthatdc.calorytracker.data.settings.SettingsEvent
 import com.thisthatdc.calorytracker.data.settings.SettingsState
 import com.thisthatdc.calorytracker.data.settings.SettingsViewModel
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 fun Settings(
@@ -59,7 +72,27 @@ fun SettingsScreen(
     modifier: Modifier = Modifier
 ) {
     val scrollBehavior = pinnedScrollBehavior(rememberTopAppBarState())
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val data = result.data
+        val uri = data?.data
+        uri?.let {
+            context.contentResolver.openOutputStream(it)?.let { outputStream ->
+                scope.launch {
+                    withContext(Dispatchers.IO) {
+                        // TODO: serialize DB here
+                        outputStream.write("hey".toByteArray())
+                        outputStream.flush()
+                        outputStream.close()
 
+                    }
+                }
+            }
+        }
+    }
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -110,7 +143,6 @@ fun SettingsScreen(
                     MacroNutrient.Fat -> state.fat
                     MacroNutrient.Carbs -> state.carbs
                 }
-                Log.d("SettingsScreen", "macro=$macro, limit=$limit, value=$value")
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
@@ -142,8 +174,29 @@ fun SettingsScreen(
                     )
                 }
             }
+
+            FilledTonalButton(
+                modifier = Modifier.fillMaxWidth(0.95f),
+                onClick = {
+                    launcher.launch(createNewDocumentIntent())
+                }
+            ) {
+                Text("Export DB")
+            }
         }
     }
+}
+
+fun createNewDocumentIntent(): Intent {
+    val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+        addCategory(Intent.CATEGORY_OPENABLE)
+        type = "html/txt"
+        putExtra(Intent.EXTRA_TITLE, "test-${System.currentTimeMillis()}.txt")
+    }
+    intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    intent.setFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+    intent.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+    return intent
 }
 
 fun handleEvent(macroNutrient: MacroNutrient, value: Int): SettingsEvent {
