@@ -120,11 +120,11 @@ fun SingleFood(modifier: Modifier = Modifier, food: FoodState) {
         name = food.name,
         unit = food.unit,
         calories = ceil((food.calories * ratio).toDouble()).toInt(),
-        carbs = ceil((food.carbs * ratio).toDouble()).toInt(),
-        fat = ceil((food.fat * ratio).toDouble()).toInt(),
-        protein = ceil((food.protein * ratio).toDouble()).toInt(),
-        sugar = ceil((food.sugar * ratio).toDouble()).toInt(),
-        fiber = ceil((food.fiber * ratio).toDouble()).toInt(),
+        carbs = food.carbs * ratio,
+        fat = food.fat * ratio,
+        protein = food.protein * ratio,
+        sugar = food.sugar * ratio,
+        fiber = food.fiber * ratio,
         definedBy = food.definedBy,
     )
     SingleFood(

@@ -9,6 +9,7 @@ import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.Serializable
 
+@Serializable
 @Entity(tableName = "settings")
 data class Settings (
     @PrimaryKey val uid: Int,
@@ -16,6 +17,8 @@ data class Settings (
     @ColumnInfo(name = "daily_fat") val fat: Int,
     @ColumnInfo(name = "daily_protein") val protein: Int,
     @ColumnInfo(name = "daily_carbs") val carbs: Int,
+    @ColumnInfo(name = "username", defaultValue="") val username: String,
+    @ColumnInfo(name = "password", defaultValue="") val password: String,
 )
 
 @Dao

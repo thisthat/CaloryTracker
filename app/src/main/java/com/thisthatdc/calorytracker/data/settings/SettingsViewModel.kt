@@ -38,7 +38,9 @@ class SettingsViewModel(
                     calories = settings.calories,
                     fat = settings.fat,
                     protein = settings.protein,
-                    carbs = settings.carbs
+                    carbs = settings.carbs,
+                    username = settings.username,
+                    password = settings.password,
                 )
             }
             _state.value
@@ -57,7 +59,9 @@ class SettingsViewModel(
                         calories = _state.value.calories,
                         fat = _state.value.fat,
                         protein = _state.value.protein,
-                        carbs = _state.value.carbs
+                        carbs = _state.value.carbs,
+                        username = _state.value.username,
+                        password = _state.value.password,
                     )
                     withContext(Dispatchers.IO) {
                         dao.upsert(s)
@@ -96,9 +100,26 @@ class SettingsViewModel(
                     )
                 }
             }
+
+            is SettingsEvent.SetPassword -> {
+                _state.update {
+                    it.copy(
+                        password = event.password
+                    )
+                }
+            }
+
+            is SettingsEvent.SetUsername -> {
+                _state.update {
+                    it.copy(
+                        username = event.username
+                    )
+                }
+            }
+
             is SettingsEvent.SaveDB -> {
                 try {
-                    JsonWriter.write(event.outputStream, state.value, foodDao.getAll(), foodEatenDao.getAll())
+                    JsonWriter.write(event.outputStream, dao.get(), foodDao.getAll(), foodEatenDao.getAll())
                 } catch (e: Throwable) {
                     Log.w("Json DB Exporter", e)
                 } finally {

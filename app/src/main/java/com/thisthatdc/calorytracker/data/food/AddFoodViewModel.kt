@@ -5,26 +5,17 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.thisthatdc.calorytracker.data.AppDatabase
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 
 sealed interface AddFoodEvent {
     data class SetName(val name: String) : AddFoodEvent
 }
 
-data class AddFoodState(
-    val dummy: String = ""
-)
-
 class AddFoodViewModel(
-    private val foodDao: FoodDao,
+    foodDao: FoodDao,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(AddFoodItemState())

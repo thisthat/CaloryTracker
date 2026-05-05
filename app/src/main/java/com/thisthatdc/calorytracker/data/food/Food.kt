@@ -30,11 +30,11 @@ data class Food (
     @ColumnInfo(name = "name") val name: String,
     @ColumnInfo(name = "servingUnit") val unit: Unit,
     @ColumnInfo(name = "calories") val calories: Int,
-    @ColumnInfo(name = "carbs") val carbs: Int,
-    @ColumnInfo(name = "fat") val fat: Int,
-    @ColumnInfo(name = "protein") val protein: Int,
-    @ColumnInfo(name = "sugar") val sugar: Int,
-    @ColumnInfo(name = "fiber") val fiber: Int,
+    @ColumnInfo(name = "carbs") val carbs: Float,
+    @ColumnInfo(name = "fat") val fat: Float,
+    @ColumnInfo(name = "protein") val protein: Float,
+    @ColumnInfo(name = "sugar") val sugar: Float,
+    @ColumnInfo(name = "fiber") val fiber: Float,
     @ColumnInfo(name = "defined_by") val definedBy: DefinedBy,
 )
 
@@ -55,11 +55,11 @@ val FoodExample = listOf(Food(
     name = "Cavolor Rosso",
     unit = Unit.GRAMS,
     calories = 100,
-    carbs = 10,
-    fat = 5,
-    protein = 25,
-    sugar = 1,
-    fiber = 80,
+    carbs = 10f,
+    fat = 5f,
+    protein = 25f,
+    sugar = 1f,
+    fiber = 80f,
     definedBy = DefinedBy.USER
 ))
 
@@ -86,11 +86,11 @@ data class FoodState(
     @ColumnInfo(name = "name") val name: String,
     @ColumnInfo(name = "servingUnit") val unit: Unit,
     @ColumnInfo(name = "calories") val calories: Int,
-    @ColumnInfo(name = "carbs") val carbs: Int,
-    @ColumnInfo(name = "fat") val fat: Int,
-    @ColumnInfo(name = "protein") val protein: Int,
-    @ColumnInfo(name = "sugar") val sugar: Int,
-    @ColumnInfo(name = "fiber") val fiber: Int,
+    @ColumnInfo(name = "carbs") val carbs: Float,
+    @ColumnInfo(name = "fat") val fat: Float,
+    @ColumnInfo(name = "protein") val protein: Float,
+    @ColumnInfo(name = "sugar") val sugar: Float,
+    @ColumnInfo(name = "fiber") val fiber: Float,
     @ColumnInfo(name = "defined_by") val definedBy: DefinedBy,
     @ColumnInfo(name = "created_at") val createdAt: Long,
     @ColumnInfo(name = "quantity") val quantity: Long,
@@ -100,7 +100,7 @@ data class FoodState(
 @Dao
 interface FoodEatenDao {
     @Query("SELECT * FROM food_eaten")
-    fun getAll(): Flow<List<FoodEaten?>>
+    fun getAll(): Flow<List<FoodEaten>>
 
 
     @Query("SELECT fe.*, f.name, f.servingUnit, f.calories, f.carbs, f.fat, f.protein, f.sugar, f.fiber, f.defined_by FROM food_eaten fe, food f WHERE fe.food_data = f.uid AND created_at BETWEEN :from AND :to")

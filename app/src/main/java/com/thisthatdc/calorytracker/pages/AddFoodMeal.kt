@@ -128,12 +128,11 @@ fun AddFoodMeal(
             )
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(0.95f),
-                value = state.quantity.toString(),
+                value = if(state.quantity > 0L) state.quantity.toString() else "",
                 onValueChange = {
-                    if (it.isNotEmpty() && it.isDigitsOnly()) onEvent(
-                        AddFoodMealEvent.SetQuantity(
-                            it.toLong()
-                        )
+                    val v = it.toLong()
+                    if (v > 0) onEvent(
+                        AddFoodMealEvent.SetQuantity(v)
                     )
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),

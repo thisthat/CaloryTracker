@@ -42,6 +42,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.thisthatdc.calorytracker.data.food.AddFoodItemEvent
 import com.thisthatdc.calorytracker.data.food.AddFoodItemState
 import com.thisthatdc.calorytracker.data.food.AddFoodItemViewModel
+import com.thisthatdc.calorytracker.data.food.AddFoodMealEvent
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
 
 
@@ -139,8 +140,13 @@ fun AddFoodItem(
             }
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(0.95f),
-                value = state.calories.toString(),
-                onValueChange = { if (it.isNotEmpty() && it.isDigitsOnly()) onEvent(AddFoodItemEvent.SetCalories(it.toInt())) },
+                value = if(state.calories > 0L) state.calories.toString() else "",
+                onValueChange = {
+                    val v = it.toInt()
+                    if (v > 0) onEvent(
+                        AddFoodItemEvent.SetCalories(v)
+                    )
+                },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 label = {
                     Text("Calories 100${state.unit.unit}")
@@ -148,8 +154,13 @@ fun AddFoodItem(
             )
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(0.95f),
-                value = state.carbs.toString(),
-                onValueChange = { if (it.isNotEmpty() && it.isDigitsOnly()) onEvent(AddFoodItemEvent.SetCarbs(it.toInt())) },
+                value = if(state.carbs > 0L) state.carbs.toString() else "",
+                onValueChange = {
+                    val v = it.toFloat()
+                    if (v > 0) onEvent(
+                        AddFoodItemEvent.SetCarbs(v)
+                    )
+                },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 label = {
                     Text("Carbs 100${state.unit.unit}")
@@ -157,8 +168,13 @@ fun AddFoodItem(
             )
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(0.95f),
-                value = state.fat.toString(),
-                onValueChange = { if (it.isNotEmpty() && it.isDigitsOnly()) onEvent(AddFoodItemEvent.SetFat(it.toInt())) },
+                value = if(state.fat > 0L) state.fat.toString() else "",
+                onValueChange = {
+                    val v = it.toFloat()
+                    if (v > 0) onEvent(
+                        AddFoodItemEvent.SetFat(v)
+                    )
+                },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 label = {
                     Text("Fat 100${state.unit.unit}")
@@ -166,8 +182,13 @@ fun AddFoodItem(
             )
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(0.95f),
-                value = state.protein.toString(),
-                onValueChange = { if (it.isNotEmpty() && it.isDigitsOnly()) onEvent(AddFoodItemEvent.SetProtein(it.toInt())) },
+                value = if(state.protein > 0L) state.protein.toString() else "",
+                onValueChange = {
+                    val v = it.toFloat()
+                    if (v > 0) onEvent(
+                        AddFoodItemEvent.SetProtein(v)
+                    )
+                },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 label = {
                     Text("Protein 100${state.unit.unit}")
@@ -175,8 +196,13 @@ fun AddFoodItem(
             )
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(0.95f),
-                value = state.sugar.toString(),
-                onValueChange = { if (it.isNotEmpty() && it.isDigitsOnly()) onEvent(AddFoodItemEvent.SetSugar(it.toInt())) },
+                value = if(state.sugar > 0L) state.sugar.toString() else "",
+                onValueChange = {
+                    val v = it.toFloat()
+                    if (v > 0) onEvent(
+                        AddFoodItemEvent.SetSugar(v)
+                    )
+                },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 label = {
                     Text("Sugar 100${state.unit.unit}")
@@ -184,8 +210,13 @@ fun AddFoodItem(
             )
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(0.95f),
-                value = state.fiber.toString(),
-                onValueChange = { if (it.isNotEmpty() && it.isDigitsOnly()) onEvent(AddFoodItemEvent.SetFiber(it.toInt())) },
+                value = if(state.fiber > 0L) state.fiber.toString() else "",
+                onValueChange = {
+                    val v = it.toFloat()
+                    if (v > 0) onEvent(
+                        AddFoodItemEvent.SetFiber(v)
+                    )
+                },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 label = {
                     Text("Fiber 100${state.unit.unit}")

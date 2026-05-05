@@ -18,11 +18,11 @@ sealed interface AddFoodItemEvent {
     data class SetName(val name: String) : AddFoodItemEvent
     data class SetUnit(val unit: Unit) : AddFoodItemEvent
     data class SetCalories(val calories: Int) : AddFoodItemEvent
-    data class SetCarbs(val carbs: Int) : AddFoodItemEvent
-    data class SetFat(val fat: Int) : AddFoodItemEvent
-    data class SetProtein(val protein: Int) : AddFoodItemEvent
-    data class SetSugar(val sugar: Int) : AddFoodItemEvent
-    data class SetFiber(val fiber: Int) : AddFoodItemEvent
+    data class SetCarbs(val carbs: Float) : AddFoodItemEvent
+    data class SetFat(val fat: Float) : AddFoodItemEvent
+    data class SetProtein(val protein: Float) : AddFoodItemEvent
+    data class SetSugar(val sugar: Float) : AddFoodItemEvent
+    data class SetFiber(val fiber: Float) : AddFoodItemEvent
 
     object Save : AddFoodItemEvent
 }
@@ -31,11 +31,11 @@ data class AddFoodItemState(
     val name: String = "",
     val unit: Unit = Unit.GRAMS,
     val calories: Int = 0,
-    val carbs: Int = 0,
-    val fat: Int = 0,
-    val protein: Int = 0,
-    val sugar: Int = 0,
-    val fiber: Int = 0,
+    val carbs: Float = 0f,
+    val fat: Float = 0f,
+    val protein: Float = 0f,
+    val sugar: Float = 0f,
+    val fiber: Float = 0f,
 )
 
 class AddFoodItemViewModel(

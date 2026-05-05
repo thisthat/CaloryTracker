@@ -1,6 +1,7 @@
 package com.thisthatdc.calorytracker.data
 
 import android.content.Context
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -11,7 +12,14 @@ import com.thisthatdc.calorytracker.data.food.FoodEatenDao
 import com.thisthatdc.calorytracker.data.settings.Settings
 import com.thisthatdc.calorytracker.data.settings.SettingsDao
 
-@Database(entities = [Settings::class, Food::class, FoodEaten::class], version = 1, exportSchema = true)
+@Database(
+    entities = [Settings::class, Food::class, FoodEaten::class],
+    version = 1,
+    exportSchema = true,
+//    autoMigrations = [
+//        AutoMigration(from = 1, to = 2)
+//    ]
+)
 abstract class AppDatabase : RoomDatabase() {
     abstract val settingsDao: SettingsDao
     abstract val foodDao: FoodDao

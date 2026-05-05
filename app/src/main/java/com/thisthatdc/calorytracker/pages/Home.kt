@@ -9,19 +9,27 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults.pinnedScrollBehavior
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,6 +45,10 @@ import com.thisthatdc.calorytracker.data.home.HomeEvent
 import com.thisthatdc.calorytracker.data.home.HomeState
 import com.thisthatdc.calorytracker.data.home.HomeViewModel
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
+import com.thisthatdc.calorytracker.ui.theme.FatColor
+import com.thisthatdc.calorytracker.ui.theme.Purple40
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.math.ceil
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -71,8 +83,14 @@ fun Home(
         currentCarbs = totalCarbs,
         maxCarbs = state.maxCarbs
     )
+
+    val snackbarHostState = remember { SnackbarHostState() }
+
     Scaffold(
         modifier = modifier,
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        },
         topBar = {
             TopAppBar(
                 colors = topAppBarColors(
@@ -80,13 +98,14 @@ fun Home(
                     titleContentColor = MaterialTheme.colorScheme.primary,
                 ),
                 title = {
-                    Text("Calory Tracker")
+                    Text("Calory Tracker", color = Purple40)
                 },
                 actions = {
                     IconButton(onClick = onSettingsClick) {
                         Icon(
                             imageVector = Icons.Filled.Settings,
-                            contentDescription = "Settings"
+                            contentDescription = "Settings",
+                            tint = Purple40,
                         )
                     }
                 },
@@ -100,7 +119,9 @@ fun Home(
             verticalArrangement = Arrangement.spacedBy(5.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            DateBar(modifier = modifier.padding(top = 10.dp).fillMaxWidth(0.95f))
+            DateBar(modifier = modifier
+                .padding(top = 10.dp)
+                .fillMaxWidth(0.95f))
             DateNavigator(
                 modifier = modifier,
                 day = state.day,

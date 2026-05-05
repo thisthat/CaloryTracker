@@ -50,7 +50,6 @@ class HomeViewModel(
     private var firstTime = true
 
     val state = combine(_state, _settings) { state, settings ->
-
         Log.d("HomeViewModel", "state refresh: ${_state.value.day}")
         if (settings != null) {
             return@combine state.copy(
@@ -62,11 +61,11 @@ class HomeViewModel(
         }
         state
     }.combine(_food) { s, food ->
-        if(firstTime) {
-            firstTime = false
-            return@combine s.copy(food = food)
-        }
-        s
+//        if(firstTime) {
+//            firstTime = false
+//            return@combine s.copy(food = food)
+//        }
+        s.copy(food = food)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), HomeState())
 
     fun refresh() {

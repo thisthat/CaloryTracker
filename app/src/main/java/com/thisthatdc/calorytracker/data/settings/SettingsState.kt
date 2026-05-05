@@ -5,4 +5,6 @@ data class SettingsState(
     val fat: Int = 50,
     val protein: Int = 100,
     val carbs: Int = 100,
+    val username: String = "",
+    val password: String = "",
 )

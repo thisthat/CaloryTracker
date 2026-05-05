@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "71547568827d415c3a5b64f50168a1cc",
+    "identityHash": "f04f22173a4180baff3c43e568a46da5",
     "entities": [
       {
         "tableName": "settings",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uid` INTEGER NOT NULL, `daily_calories` INTEGER NOT NULL, `daily_fat` INTEGER NOT NULL, `daily_protein` INTEGER NOT NULL, `daily_carbs` INTEGER NOT NULL, PRIMARY KEY(`uid`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uid` INTEGER NOT NULL, `daily_calories` INTEGER NOT NULL, `daily_fat` INTEGER NOT NULL, `daily_protein` INTEGER NOT NULL, `daily_carbs` INTEGER NOT NULL, `username` TEXT NOT NULL DEFAULT '', `password` TEXT NOT NULL DEFAULT '', PRIMARY KEY(`uid`))",
         "fields": [
           {
             "fieldPath": "uid",
@@ -37,6 +37,20 @@
             "columnName": "daily_carbs",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "username",
+            "columnName": "username",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "''"
+          },
+          {
+            "fieldPath": "password",
+            "columnName": "password",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "''"
           }
         ],
         "primaryKey": {
@@ -48,7 +62,7 @@
       },
       {
         "tableName": "food",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `servingUnit` TEXT NOT NULL, `calories` INTEGER NOT NULL, `carbs` INTEGER NOT NULL, `fat` INTEGER NOT NULL, `protein` INTEGER NOT NULL, `sugar` INTEGER NOT NULL, `fiber` INTEGER NOT NULL, `defined_by` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `servingUnit` TEXT NOT NULL, `calories` INTEGER NOT NULL, `carbs` REAL NOT NULL, `fat` REAL NOT NULL, `protein` REAL NOT NULL, `sugar` REAL NOT NULL, `fiber` REAL NOT NULL, `defined_by` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "uid",
@@ -77,31 +91,31 @@
           {
             "fieldPath": "carbs",
             "columnName": "carbs",
-            "affinity": "INTEGER",
+            "affinity": "REAL",
             "notNull": true
           },
           {
             "fieldPath": "fat",
             "columnName": "fat",
-            "affinity": "INTEGER",
+            "affinity": "REAL",
             "notNull": true
           },
           {
             "fieldPath": "protein",
             "columnName": "protein",
-            "affinity": "INTEGER",
+            "affinity": "REAL",
             "notNull": true
           },
           {
             "fieldPath": "sugar",
             "columnName": "sugar",
-            "affinity": "INTEGER",
+            "affinity": "REAL",
             "notNull": true
           },
           {
             "fieldPath": "fiber",
             "columnName": "fiber",
-            "affinity": "INTEGER",
+            "affinity": "REAL",
             "notNull": true
           },
           {
@@ -163,7 +177,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '71547568827d415c3a5b64f50168a1cc')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f04f22173a4180baff3c43e568a46da5')"
     ]
   }
 }

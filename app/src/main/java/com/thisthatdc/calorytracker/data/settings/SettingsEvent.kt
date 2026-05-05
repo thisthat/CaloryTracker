@@ -8,5 +8,7 @@ sealed interface SettingsEvent {
     data class SetProtein(val protein: Int): SettingsEvent
     data class SetFat(val fat: Int): SettingsEvent
     data class SetCarbs(val carbs: Int): SettingsEvent
+    data class SetUsername(val username: String): SettingsEvent
+    data class SetPassword(val password: String): SettingsEvent
     data class SaveDB(val outputStream: OutputStream): SettingsEvent
 }
