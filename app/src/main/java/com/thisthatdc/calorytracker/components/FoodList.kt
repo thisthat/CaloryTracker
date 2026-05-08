@@ -23,7 +23,12 @@ import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
 import kotlin.math.ceil
 
 @Composable
-fun FoodList(modifier: Modifier = Modifier, onFoodClick: (Meals, Long) -> Unit, state: HomeState) {
+fun FoodList(
+    modifier: Modifier = Modifier,
+    onFoodClick: (Meals, Long) -> Unit,
+    onDeleteFood: (Long) -> Unit,
+    state: HomeState
+) {
     val breakfast = state.food.filter { it.meal == Meals.Breakfast }
     val lunch = state.food.filter { it.meal == Meals.Lunch }
     val snacks = state.food.filter { it.meal == Meals.Snacks }
@@ -40,6 +45,7 @@ fun FoodList(modifier: Modifier = Modifier, onFoodClick: (Meals, Long) -> Unit, 
             onFoodClick = onFoodClick,
             food = breakfast,
             day = day,
+            onDeleteFood = onDeleteFood,
         )
         Meal(
             modifier = modifier.background(MaterialTheme.colorScheme.surfaceContainer),
@@ -47,6 +53,7 @@ fun FoodList(modifier: Modifier = Modifier, onFoodClick: (Meals, Long) -> Unit, 
             onFoodClick = onFoodClick,
             food = lunch,
             day = day,
+            onDeleteFood = onDeleteFood,
         )
         Meal(
             modifier = modifier.background(MaterialTheme.colorScheme.surfaceContainer),
@@ -54,6 +61,7 @@ fun FoodList(modifier: Modifier = Modifier, onFoodClick: (Meals, Long) -> Unit, 
             onFoodClick = onFoodClick,
             food = snacks,
             day = day,
+            onDeleteFood = onDeleteFood,
         )
         Meal(
             modifier = modifier.background(MaterialTheme.colorScheme.surfaceContainer),
@@ -61,6 +69,7 @@ fun FoodList(modifier: Modifier = Modifier, onFoodClick: (Meals, Long) -> Unit, 
             onFoodClick = onFoodClick,
             food = dinner,
             day = day,
+            onDeleteFood = onDeleteFood,
         )
     }
 }
@@ -72,7 +81,8 @@ fun Meal(
     meal: Meals,
     food: List<FoodState>,
     day: Long,
-    onFoodClick: (Meals, Long) -> Unit
+    onFoodClick: (Meals, Long) -> Unit,
+    onDeleteFood: (Long) -> Unit,
 ) {
     var totalCalories = 0
     var totalFat = 0
@@ -100,7 +110,7 @@ fun Meal(
         )
         HorizontalDivider(thickness = 1.dp)
         for (f in food) {
-            SingleFood(modifier = Modifier, food = f)
+            SingleFood(modifier = Modifier, food = f, onDeleteFood = onDeleteFood)
             HorizontalDivider(thickness = 1.dp)
         }
         TextButton(
@@ -122,7 +132,7 @@ fun FoodListPreview() {
             Row(
                 modifier = Modifier.padding(innerPadding)
             ) {
-                FoodList(onFoodClick = { _: Meals, _: Long -> }, state = HomeState())
+                FoodList(onFoodClick = { _: Meals, _: Long -> }, state = HomeState(), onDeleteFood = {})
             }
         }
     }

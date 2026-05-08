@@ -2,34 +2,38 @@ package com.thisthatdc.calorytracker.pages
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults.pinnedScrollBehavior
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -45,9 +49,6 @@ import com.thisthatdc.calorytracker.data.home.HomeEvent
 import com.thisthatdc.calorytracker.data.home.HomeState
 import com.thisthatdc.calorytracker.data.home.HomeViewModel
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
-import com.thisthatdc.calorytracker.ui.theme.FatColor
-import com.thisthatdc.calorytracker.ui.theme.Purple40
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.ceil
 
@@ -84,6 +85,11 @@ fun Home(
         maxCarbs = state.maxCarbs
     )
 
+    val sheetState = rememberModalBottomSheetState()
+    val scope = rememberCoroutineScope()
+    var showModalConfirm by remember { mutableStateOf(false) }
+    var foodId by remember { mutableLongStateOf(-1L) }
+
     val snackbarHostState = remember { SnackbarHostState() }
 
     Scaffold(
@@ -118,9 +124,11 @@ fun Home(
             verticalArrangement = Arrangement.spacedBy(5.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            DateBar(modifier = modifier
-                .padding(top = 10.dp)
-                .fillMaxWidth(0.95f))
+            DateBar(
+                modifier = modifier
+                    .padding(top = 10.dp)
+                    .fillMaxWidth(0.95f)
+            )
             DateNavigator(
                 modifier = modifier,
                 day = state.day,
@@ -136,9 +144,42 @@ fun Home(
                 item {
                     Macros(modifier, macroState)
                     Spacer(Modifier.height(10.dp))
-                    FoodList(modifier, onFoodClick, state)
+                    FoodList(
+                        modifier = modifier,
+                        onFoodClick = onFoodClick,
+                        onDeleteFood = { uid ->  showModalConfirm = true; foodId = uid },
+                        state = state
+                    )
                 }
             }
+        }
+    }
+    if (showModalConfirm && foodId >= 0) {
+        ModalBottomSheet(
+            onDismissRequest = {
+                showModalConfirm = false
+            },
+            sheetState = sheetState,
+            modifier = modifier,
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Sheet content
+                Button(onClick = {
+                    scope.launch { sheetState.hide() }.invokeOnCompletion {
+                        if (!sheetState.isVisible) {
+                            showModalConfirm = false
+                        }
+                        onEvent(HomeEvent.DeleteFood(foodId))
+                    }
+                }) {
+                    Text("Delete it!")
+                }
+            }
+
         }
     }
 }

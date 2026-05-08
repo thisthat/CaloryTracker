@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -30,15 +31,23 @@ import com.thisthatdc.calorytracker.ui.theme.ProteinColor
 import kotlin.math.ceil
 
 @Composable
-fun SingleFood(modifier: Modifier = Modifier, food: Food, quantity: Int = 0, onAddFood: (Long) -> Unit = {}) {
+fun SingleFood(
+    modifier: Modifier = Modifier,
+    food: Food,
+    quantity: Int = 0,
+    onAddFood: (Long) -> Unit = {},
+    onDeleteFood: (Long) -> Unit = {},
+) {
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(top=5.dp, bottom = 5.dp),
+            .padding(top = 5.dp, bottom = 5.dp),
         verticalArrangement = Arrangement.Center
     ) {
         Row(
-            modifier = modifier.fillMaxWidth().padding(top=0.dp),
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(top = 0.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
@@ -96,13 +105,23 @@ fun SingleFood(modifier: Modifier = Modifier, food: Food, quantity: Int = 0, onA
                     )
                 }
             }
-            if(quantity == 0) {
+            if (quantity == 0) {
                 IconButton(
                     modifier = modifier.weight(0.1f),
                     onClick = { onAddFood(food.uid) }
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
+                        contentDescription = "Localized description"
+                    )
+                }
+            } else {
+                IconButton(
+                    modifier = modifier.weight(0.1f),
+                    onClick = { onDeleteFood(food.uid) }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
                         contentDescription = "Localized description"
                     )
                 }
@@ -117,7 +136,7 @@ fun scale(v: Float): Float {
 }
 
 @Composable
-fun SingleFood(modifier: Modifier = Modifier, food: FoodState) {
+fun SingleFood(modifier: Modifier = Modifier, food: FoodState, onDeleteFood: (Long) -> Unit) {
     val ratio = food.quantity / 100f
     val f = Food(
         uid = food.uid,
@@ -135,10 +154,10 @@ fun SingleFood(modifier: Modifier = Modifier, food: FoodState) {
         modifier = modifier,
         food = f,
         quantity = food.quantity.toInt(),
-        onAddFood = {}
+        onAddFood = {},
+        onDeleteFood = onDeleteFood,
     )
 }
-
 
 
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_MASK)

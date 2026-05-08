@@ -9,13 +9,16 @@ import com.thisthatdc.calorytracker.data.AppDatabase
 import com.thisthatdc.calorytracker.data.food.FoodEatenDao
 import com.thisthatdc.calorytracker.data.food.FoodState
 import com.thisthatdc.calorytracker.data.settings.SettingsDao
+import com.thisthatdc.calorytracker.data.settings.SettingsEvent
 import com.thisthatdc.calorytracker.util.Time
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.temporal.ChronoUnit
 import java.util.Date
 
@@ -24,6 +27,7 @@ sealed interface HomeEvent {
     object ResetDate : HomeEvent
     object PrevDate : HomeEvent
     object NextDate : HomeEvent
+    data class DeleteFood (val uid: Long): HomeEvent
 }
 
 data class HomeState(
@@ -97,6 +101,13 @@ class HomeViewModel(
                 val tomorrow = _state.value.day.toInstant().minus(1, ChronoUnit.DAYS)
                 _state.update { it.copy(day = Date.from(tomorrow)) }
                 refresh()
+            }
+            is HomeEvent.DeleteFood -> {
+                viewModelScope.launch {
+                    withContext(Dispatchers.IO) {
+                        foodEatenDao.delete(event.uid)
+                    }
+                }
             }
         }
     }

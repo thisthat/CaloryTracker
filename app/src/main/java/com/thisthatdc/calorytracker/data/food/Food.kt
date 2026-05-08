@@ -3,6 +3,7 @@ package com.thisthatdc.calorytracker.data.food
 
 import androidx.room.ColumnInfo
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.Query
@@ -108,4 +109,7 @@ interface FoodEatenDao {
 
     @Upsert
     fun upsert(foodEaten: FoodEaten)
+
+    @Query("DELETE FROM food_eaten WHERE uid = :uid")
+    fun delete(uid: Long)
 }
