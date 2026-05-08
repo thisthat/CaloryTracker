@@ -43,7 +43,7 @@ import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
 
 enum class Tabs(
     val title: String,
-    val component: @Composable (List<Food>, (Long) -> Unit) -> Unit
+    val component: @Composable (List<Food>, (Long) -> Unit, String) -> Unit
 ) {
     ALL(title = "All", component = ::AllTab),
     YOUR_FOOD(title = "Your food", component = ::AllTab),
@@ -136,7 +136,7 @@ fun AddFood(
             }
             Tabs.entries.forEachIndexed { index, elm ->
                 if (selectedDestination == index) {
-                    elm.component(if (index == 0) foods else userDefinedFood, onFoodSelected)
+                    elm.component(if (index == 0) foods else userDefinedFood, onFoodSelected, textFieldState)
                 }
             }
         }

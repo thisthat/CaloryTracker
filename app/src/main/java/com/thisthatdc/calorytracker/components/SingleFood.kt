@@ -112,6 +112,10 @@ fun SingleFood(modifier: Modifier = Modifier, food: Food, quantity: Int = 0, onA
     HorizontalDivider(thickness = 2.dp)
 }
 
+fun scale(v: Float): Float {
+    return ceil(v.toDouble() * 1000).toFloat() / 1000f
+}
+
 @Composable
 fun SingleFood(modifier: Modifier = Modifier, food: FoodState) {
     val ratio = food.quantity / 100f
@@ -120,11 +124,11 @@ fun SingleFood(modifier: Modifier = Modifier, food: FoodState) {
         name = food.name,
         unit = food.unit,
         calories = ceil((food.calories * ratio).toDouble()).toInt(),
-        carbs = food.carbs * ratio,
-        fat = food.fat * ratio,
-        protein = food.protein * ratio,
-        sugar = food.sugar * ratio,
-        fiber = food.fiber * ratio,
+        carbs = scale(food.carbs * ratio),
+        fat = scale(food.fat * ratio),
+        protein = scale(food.protein * ratio),
+        sugar = scale(food.sugar * ratio),
+        fiber = scale(food.fiber * ratio),
         definedBy = food.definedBy,
     )
     SingleFood(

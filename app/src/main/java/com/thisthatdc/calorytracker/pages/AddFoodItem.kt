@@ -142,80 +142,109 @@ fun AddFoodItem(
                 modifier = Modifier.fillMaxWidth(0.95f),
                 value = if(state.calories > 0L) state.calories.toString() else "",
                 onValueChange = {
-                    val v = it.toInt()
-                    if (v > 0) onEvent(
-                        AddFoodItemEvent.SetCalories(v)
-                    )
+                    try {
+                        val v = it.toInt()
+                        if (v > 0) onEvent(
+                            AddFoodItemEvent.SetCalories(v)
+                        )
+                    } catch (_: NumberFormatException) {
+                        AddFoodItemEvent.SetCalories(0)
+                    }
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 label = {
                     Text("Calories 100${state.unit.unit}")
-                }
+                },
+                isError = state.calories <= 1
             )
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(0.95f),
                 value = if(state.carbs > 0L) state.carbs.toString() else "",
                 onValueChange = {
-                    val v = it.toFloat()
-                    if (v > 0) onEvent(
-                        AddFoodItemEvent.SetCarbs(v)
-                    )
+                    try {
+                        val v = it.toFloat()
+                        if (v > 0) onEvent(
+                            AddFoodItemEvent.SetCarbs(v)
+                        )
+                    } catch (_: NumberFormatException) {
+                        AddFoodItemEvent.SetCarbs(0f)
+                    }
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 label = {
                     Text("Carbs 100${state.unit.unit}")
-                }
+                },
+                isError = state.carbs <= 0f
             )
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(0.95f),
                 value = if(state.fat > 0L) state.fat.toString() else "",
                 onValueChange = {
-                    val v = it.toFloat()
-                    if (v > 0) onEvent(
-                        AddFoodItemEvent.SetFat(v)
-                    )
+                    try {
+                        val v = it.toFloat()
+                        if (v > 0) onEvent(
+                            AddFoodItemEvent.SetFat(v)
+                        )
+                    } catch (_: NumberFormatException) {
+                        AddFoodItemEvent.SetFat(0f)
+                    }
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 label = {
                     Text("Fat 100${state.unit.unit}")
-                }
+                },
+                isError = state.fat <= 0f
             )
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(0.95f),
                 value = if(state.protein > 0L) state.protein.toString() else "",
                 onValueChange = {
-                    val v = it.toFloat()
-                    if (v > 0) onEvent(
-                        AddFoodItemEvent.SetProtein(v)
-                    )
+                    try {
+                        val v = it.toFloat()
+                        if (v > 0) onEvent(
+                            AddFoodItemEvent.SetProtein(v)
+                        )
+                    } catch (_: NumberFormatException) {
+                        AddFoodItemEvent.SetProtein(0f)
+                    }
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 label = {
                     Text("Protein 100${state.unit.unit}")
-                }
+                },
+                isError = state.protein <= 0f
             )
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(0.95f),
                 value = if(state.sugar > 0L) state.sugar.toString() else "",
                 onValueChange = {
-                    val v = it.toFloat()
-                    if (v > 0) onEvent(
-                        AddFoodItemEvent.SetSugar(v)
-                    )
+                    try {
+                        val v = it.toFloat()
+                        if (v > 0) onEvent(
+                            AddFoodItemEvent.SetSugar(v)
+                        )
+                    } catch (_: NumberFormatException) {
+                        AddFoodItemEvent.SetSugar(0f)
+                    }
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 label = {
                     Text("Sugar 100${state.unit.unit}")
-                }
+                },
+                isError = state.sugar <= 0f
             )
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(0.95f),
                 value = if(state.fiber > 0L) state.fiber.toString() else "",
                 onValueChange = {
-                    val v = it.toFloat()
-                    if (v > 0) onEvent(
-                        AddFoodItemEvent.SetFiber(v)
-                    )
+                    try {
+                        val v = it.toFloat()
+                        if (v > 0) onEvent(
+                            AddFoodItemEvent.SetFiber(v)
+                        )
+                    } catch (_: NumberFormatException) {
+                        AddFoodItemEvent.SetFiber(0f)
+                    }
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 label = {

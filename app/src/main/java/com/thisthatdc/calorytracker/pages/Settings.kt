@@ -113,7 +113,7 @@ fun SettingsScreen(
                     titleContentColor = MaterialTheme.colorScheme.primary,
                 ),
                 title = {
-                    Text("Calory Tracker :: Settings")
+                    Text("Calories Tracker :: Settings")
                 },
                 navigationIcon = {
                     IconButton(onClick = {

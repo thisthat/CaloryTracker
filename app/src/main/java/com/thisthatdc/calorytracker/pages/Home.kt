@@ -98,14 +98,13 @@ fun Home(
                     titleContentColor = MaterialTheme.colorScheme.primary,
                 ),
                 title = {
-                    Text("Calory Tracker", color = Purple40)
+                    Text("Calories Tracker")
                 },
                 actions = {
                     IconButton(onClick = onSettingsClick) {
                         Icon(
                             imageVector = Icons.Filled.Settings,
                             contentDescription = "Settings",
-                            tint = Purple40,
                         )
                     }
                 },

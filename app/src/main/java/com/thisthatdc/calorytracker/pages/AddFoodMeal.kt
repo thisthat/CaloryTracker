@@ -32,7 +32,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.thisthatdc.calorytracker.components.MacroList
 import com.thisthatdc.calorytracker.components.MacroListState
@@ -130,15 +129,20 @@ fun AddFoodMeal(
                 modifier = Modifier.fillMaxWidth(0.95f),
                 value = if(state.quantity > 0L) state.quantity.toString() else "",
                 onValueChange = {
-                    val v = it.toLong()
-                    if (v > 0) onEvent(
-                        AddFoodMealEvent.SetQuantity(v)
-                    )
+                    try {
+                        val v = it.toLong()
+                        if (v > 0) onEvent(
+                            AddFoodMealEvent.SetQuantity(v)
+                        )
+                    } catch (_: NumberFormatException) {
+                        AddFoodMealEvent.SetQuantity(0)
+                    }
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 label = {
                     Text("Quantity ${state.food.unit.unit}")
-                }
+                },
+                isError = state.quantity <= 0
             )
             MacroList(
                 state = macroState
@@ -147,9 +151,11 @@ fun AddFoodMeal(
             FilledTonalButton(
                 modifier = Modifier.fillMaxWidth(0.95f),
                 onClick = {
-                    onEvent(AddFoodMealEvent.Save(day))
-                    onBack()
-                    onBack()
+                    if(state.quantity > 0) {
+                        onEvent(AddFoodMealEvent.Save(day))
+                        onBack()
+                        onBack()
+                    }
                 }
             ) {
                 Text("Save")
