@@ -104,7 +104,7 @@ interface FoodEatenDao {
     fun getAll(): Flow<List<FoodEaten>>
 
 
-    @Query("SELECT fe.*, f.name, f.servingUnit, f.calories, f.carbs, f.fat, f.protein, f.sugar, f.fiber, f.defined_by FROM food_eaten fe, food f WHERE fe.food_data = f.uid AND created_at BETWEEN :from AND :to")
+    @Query("SELECT fe.*, f.name, f.servingUnit, f.calories, f.carbs, f.fat, f.protein, f.sugar, f.fiber, f.defined_by FROM food_eaten fe, food f WHERE fe.food_data = f.uid AND fe.created_at BETWEEN :from AND :to")
     fun getDate(from: Long, to: Long): Flow<List<FoodState>>
 
     @Upsert

@@ -1,5 +1,6 @@
 package com.thisthatdc.calorytracker.pages
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -42,7 +43,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.thisthatdc.calorytracker.data.food.AddFoodItemEvent
 import com.thisthatdc.calorytracker.data.food.AddFoodItemState
 import com.thisthatdc.calorytracker.data.food.AddFoodItemViewModel
-import com.thisthatdc.calorytracker.data.food.AddFoodMealEvent
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
 
 
@@ -55,6 +55,11 @@ fun AddFoodItem(
     onBack: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
+
+    var calString by remember { mutableStateOf("") }
+    var calError by remember { mutableStateOf(true) }
+
+    val regex = "^[0-9]*$".toRegex()
 
     val scrollBehavior = pinnedScrollBehavior(rememberTopAppBarState())
     Scaffold(
@@ -107,7 +112,13 @@ fun AddFoodItem(
                 value = state.unit.unit,
                 readOnly = true,
                 enabled = false,
-                onValueChange = { if (it.isNotEmpty() && it.isDigitsOnly()) onEvent(AddFoodItemEvent.SetCalories(it.toInt())) },
+                onValueChange = {
+                    if (it.isNotEmpty() && it.isDigitsOnly()) onEvent(
+                        AddFoodItemEvent.SetCalories(
+                            it.toInt()
+                        )
+                    )
+                },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 label = {
                     Text("Unit")
@@ -140,117 +151,106 @@ fun AddFoodItem(
             }
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(0.95f),
-                value = if(state.calories > 0L) state.calories.toString() else "",
-                onValueChange = {
+                value = calString,
+                onValueChange = { newStringValue ->
+                    // empty == 0
+                    if (newStringValue == "") {
+                        calString = newStringValue
+                        calError = true;
+                        AddFoodItemEvent.SetCalories(0)
+                        return@OutlinedTextField
+                    }
+                    // not a valid int
+                    if (!regex.matches(newStringValue)) {
+                        calError = true
+                        AddFoodItemEvent.SetCalories(0)
+                        return@OutlinedTextField
+                    }
+                    calError = false;
+                    calString = newStringValue
                     try {
-                        val v = it.toInt()
-                        if (v > 0) onEvent(
+                        val v = newStringValue.toInt()
+                        Log.d("Test","Valore: $v")
+                        if (v > 0) {
                             AddFoodItemEvent.SetCalories(v)
-                        )
+                        } else {
+                            calError = true
+                        }
                     } catch (_: NumberFormatException) {
                         AddFoodItemEvent.SetCalories(0)
+                        calError = true
                     }
+
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 label = {
                     Text("Calories 100${state.unit.unit}")
                 },
-                isError = state.calories <= 1
-            )
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(0.95f),
-                value = if(state.carbs > 0L) state.carbs.toString() else "",
-                onValueChange = {
-                    try {
-                        val v = it.toFloat()
-                        if (v > 0) onEvent(
-                            AddFoodItemEvent.SetCarbs(v)
-                        )
-                    } catch (_: NumberFormatException) {
-                        AddFoodItemEvent.SetCarbs(0f)
+                isError = calError,
+                supportingText = {
+                    if (calError) {
+                        Text("Incorrect number format. Must be > 0")
                     }
-                },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                label = {
-                    Text("Carbs 100${state.unit.unit}")
-                },
-                isError = state.carbs <= 0f
-            )
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(0.95f),
-                value = if(state.fat > 0L) state.fat.toString() else "",
-                onValueChange = {
-                    try {
-                        val v = it.toFloat()
-                        if (v > 0) onEvent(
-                            AddFoodItemEvent.SetFat(v)
-                        )
-                    } catch (_: NumberFormatException) {
-                        AddFoodItemEvent.SetFat(0f)
-                    }
-                },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                label = {
-                    Text("Fat 100${state.unit.unit}")
-                },
-                isError = state.fat <= 0f
-            )
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(0.95f),
-                value = if(state.protein > 0L) state.protein.toString() else "",
-                onValueChange = {
-                    try {
-                        val v = it.toFloat()
-                        if (v > 0) onEvent(
-                            AddFoodItemEvent.SetProtein(v)
-                        )
-                    } catch (_: NumberFormatException) {
-                        AddFoodItemEvent.SetProtein(0f)
-                    }
-                },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                label = {
-                    Text("Protein 100${state.unit.unit}")
-                },
-                isError = state.protein <= 0f
-            )
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(0.95f),
-                value = if(state.sugar > 0L) state.sugar.toString() else "",
-                onValueChange = {
-                    try {
-                        val v = it.toFloat()
-                        if (v > 0) onEvent(
-                            AddFoodItemEvent.SetSugar(v)
-                        )
-                    } catch (_: NumberFormatException) {
-                        AddFoodItemEvent.SetSugar(0f)
-                    }
-                },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                label = {
-                    Text("Sugar 100${state.unit.unit}")
-                },
-                isError = state.sugar <= 0f
-            )
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(0.95f),
-                value = if(state.fiber > 0L) state.fiber.toString() else "",
-                onValueChange = {
-                    try {
-                        val v = it.toFloat()
-                        if (v > 0) onEvent(
-                            AddFoodItemEvent.SetFiber(v)
-                        )
-                    } catch (_: NumberFormatException) {
-                        AddFoodItemEvent.SetFiber(0f)
-                    }
-                },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                label = {
-                    Text("Fiber 100${state.unit.unit}")
                 }
             )
+            MacroText(
+                macroName = "Carbs",
+                unit = state.unit.unit,
+                onError = { v ->
+                    AddFoodItemEvent.SetCarbs(0f)
+                },
+                onEvent = { v ->
+                    onEvent(
+                        AddFoodItemEvent.SetCarbs(v)
+                    )
+                })
+            MacroText(
+                macroName = "Fat",
+                unit = state.unit.unit,
+                onError = { v ->
+                    AddFoodItemEvent.SetFat(0f)
+                },
+                onEvent = { v ->
+                    onEvent(
+                        AddFoodItemEvent.SetFat(v)
+                    )
+                })
+            MacroText(
+                macroName = "Protein",
+                unit = state.unit.unit,
+                onError = { v ->
+                    AddFoodItemEvent.SetProtein(0f)
+                },
+                onEvent = { v ->
+                    onEvent(
+                        AddFoodItemEvent.SetProtein(v)
+                    )
+                })
+
+            MacroText(
+                macroName = "Sugar",
+                unit = state.unit.unit,
+                onError = { v ->
+                    AddFoodItemEvent.SetSugar(0f)
+                },
+                onEvent = { v ->
+                    onEvent(
+                        AddFoodItemEvent.SetSugar(v)
+                    )
+                })
+
+            MacroText(
+                macroName = "Fiber",
+                unit = state.unit.unit,
+                onError = { v ->
+                    AddFoodItemEvent.SetFiber(0f)
+                },
+                onEvent = { v ->
+                    onEvent(
+                        AddFoodItemEvent.SetFiber(v)
+                    )
+                })
+
             Spacer(modifier = Modifier.height(10.dp))
             FilledTonalButton(
                 modifier = Modifier.fillMaxWidth(0.95f),
@@ -263,6 +263,58 @@ fun AddFoodItem(
             }
         }
     }
+}
+
+@Composable
+fun MacroText(macroName: String, unit: String, onError: (Float) -> Unit, onEvent: (Float) -> Unit) {
+    var macroString by remember { mutableStateOf("") }
+    var macroError by remember { mutableStateOf(false) }
+    val regex = "^[-+]?[0-9]*\\.?[0-9]+$".toRegex()
+    OutlinedTextField(
+        modifier = Modifier.fillMaxWidth(0.95f),
+        value = macroString,
+        onValueChange = { newStringValue ->
+            // empty == 0
+            if (newStringValue == "") {
+                macroString = newStringValue
+                macroError = false;
+                onError(0f)
+                return@OutlinedTextField
+            }
+            //ends with . we keep it going
+            if (newStringValue.last() == '.' && newStringValue.count { it == '.' } == 1) {
+                macroString = newStringValue
+                macroError = false;
+                return@OutlinedTextField
+            }
+            // not a valid float
+            if (!regex.matches(newStringValue)) {
+                macroError = true
+                onError(0f)
+                return@OutlinedTextField
+            }
+            macroError = false;
+            macroString = newStringValue
+            try {
+                val v = newStringValue.toFloat()
+                if (v >= 0) {
+                    onEvent(v)
+                }
+            } catch (_: NumberFormatException) {
+                onError(0f)
+            }
+        },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        label = {
+            Text("$macroName 100${unit}")
+        },
+        isError = macroError,
+        supportingText = {
+            if (macroError) {
+                Text("Incorrect number format.")
+            }
+        }
+    )
 }
 
 

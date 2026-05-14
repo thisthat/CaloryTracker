@@ -145,8 +145,8 @@ fun SettingsScreen(
 
             MacroNutrient.entries.forEach { macro ->
                 val limit: ClosedFloatingPointRange<Float> = when (macro) {
-                    MacroNutrient.Calories -> 1000f..3000f
-                    else -> 10f..100f
+                    MacroNutrient.Calories -> 800f..2500f
+                    else -> 10f..200f
                 }
                 val value = when (macro) {
                     MacroNutrient.Calories -> state.calories
@@ -171,7 +171,7 @@ fun SettingsScreen(
                             value = value.toFloat(),
                             onValueChange = { onEvent(handleEvent(macro, it.toInt())) },
                             valueRange = limit,
-                            steps = 39,
+                            steps = 200,
                             colors = SliderDefaults.colors(
                                 thumbColor = macro.color,
                                 activeTrackColor = macro.color,

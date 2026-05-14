@@ -12,9 +12,12 @@ import com.thisthatdc.calorytracker.data.settings.SettingsDao
 import com.thisthatdc.calorytracker.data.settings.SettingsEvent
 import com.thisthatdc.calorytracker.util.Time
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -46,15 +49,15 @@ class HomeViewModel(
 
     private val _state = MutableStateFlow(HomeState())
     private val _settings = settingsDao.get()
-    private var _food = foodEatenDao.getDate(
-        Time.getStartingDayMillis(_state.value.day),
-        Time.getNextStartingDayMillis(_state.value.day)
-    )
-
-    private var firstTime = true
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private var _food = _state.mapLatest { state ->
+        foodEatenDao.getDate(
+            Time.getStartingDayMillis(state.day),
+            Time.getNextStartingDayMillis(state.day)
+        ).first()
+    }
 
     val state = combine(_state, _settings) { state, settings ->
-        Log.d("HomeViewModel", "state refresh: ${_state.value.day}")
         if (settings != null) {
             return@combine state.copy(
                 maxCalories = settings.calories,
@@ -65,10 +68,6 @@ class HomeViewModel(
         }
         state
     }.combine(_food) { s, food ->
-//        if(firstTime) {
-//            firstTime = false
-//            return@combine s.copy(food = food)
-//        }
         s.copy(food = food)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), HomeState())
 
