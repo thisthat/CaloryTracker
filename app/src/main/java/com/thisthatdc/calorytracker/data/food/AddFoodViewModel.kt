@@ -26,13 +26,6 @@ class AddFoodViewModel(
         emptyList()
     )
 
-
-    val userDefinedFood = foodDao.getAllUserDefined().stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(5000),
-        emptyList()
-    )
-
     val state = _state.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000),

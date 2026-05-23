@@ -16,12 +16,12 @@ import kotlinx.coroutines.withContext
 
 
 sealed interface AddFoodMealEvent {
-    data class SetQuantity(val quantity: Long) : AddFoodMealEvent
+    data class SetQuantity(val quantity: Float) : AddFoodMealEvent
     data class Save(val time: Long) : AddFoodMealEvent
 }
 
 data class AddFoodMealState(
-    val quantity: Long = 0,
+    val quantity: Float = 0f,
     val food: Food? = null,
 )
 

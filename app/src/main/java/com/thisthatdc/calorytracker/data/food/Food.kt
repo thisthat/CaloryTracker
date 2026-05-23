@@ -15,7 +15,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 enum class Unit(val unit: String) {
     GRAMS("g"),
-    LIQUID("ml")
+    LIQUID("ml"),
+    GENERIC("unit")
 }
 
 @Serializable
@@ -41,10 +42,8 @@ data class Food (
 
 @Dao
 interface FoodDao {
-    @Query("SELECT * FROM food")
+    @Query("SELECT * FROM food ORDER BY name ASC")
     fun getAll(): Flow<List<Food>>
-    @Query("SELECT * FROM food WHERE defined_by = 'USER'")
-    fun getAllUserDefined(): Flow<List<Food>>
     @Query("SELECT * FROM food WHERE uid = :id")
     fun getById(id: Long): Flow<Food?>
     @Upsert
@@ -78,7 +77,7 @@ data class FoodEaten (
     @PrimaryKey(autoGenerate = true) val uid: Long = 0,
     @ColumnInfo(name = "food_data") val foodId: Long,
     @ColumnInfo(name = "created_at") val createdAt: Long,
-    @ColumnInfo(name = "quantity") val quantity: Long,
+    @ColumnInfo(name = "quantity") val quantity: Float,
     @ColumnInfo(name = "meal") val meal: Meals,
 )
 
@@ -94,7 +93,7 @@ data class FoodState(
     @ColumnInfo(name = "fiber") val fiber: Float,
     @ColumnInfo(name = "defined_by") val definedBy: DefinedBy,
     @ColumnInfo(name = "created_at") val createdAt: Long,
-    @ColumnInfo(name = "quantity") val quantity: Long,
+    @ColumnInfo(name = "quantity") val quantity: Float,
     @ColumnInfo(name = "meal") val meal: Meals,
 )
 

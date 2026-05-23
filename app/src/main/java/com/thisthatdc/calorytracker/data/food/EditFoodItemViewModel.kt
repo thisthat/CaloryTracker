@@ -9,26 +9,28 @@ import com.thisthatdc.calorytracker.data.AppDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
-sealed interface AddFoodItemEvent {
-    data class SetName(val name: String) : AddFoodItemEvent
-    data class SetUnit(val unit: Unit) : AddFoodItemEvent
-    data class SetCalories(val calories: Int) : AddFoodItemEvent
-    data class SetCarbs(val carbs: Float) : AddFoodItemEvent
-    data class SetFat(val fat: Float) : AddFoodItemEvent
-    data class SetProtein(val protein: Float) : AddFoodItemEvent
-    data class SetSugar(val sugar: Float) : AddFoodItemEvent
-    data class SetFiber(val fiber: Float) : AddFoodItemEvent
+sealed interface EditFoodItemEvent {
+    data class SetName(val name: String) : EditFoodItemEvent
+    data class SetUnit(val unit: Unit) : EditFoodItemEvent
+    data class SetCalories(val calories: Int) : EditFoodItemEvent
+    data class SetCarbs(val carbs: Float) : EditFoodItemEvent
+    data class SetFat(val fat: Float) : EditFoodItemEvent
+    data class SetProtein(val protein: Float) : EditFoodItemEvent
+    data class SetSugar(val sugar: Float) : EditFoodItemEvent
+    data class SetFiber(val fiber: Float) : EditFoodItemEvent
 
-    object Save : AddFoodItemEvent
+    object Save : EditFoodItemEvent
 }
 
-data class AddFoodItemState(
+data class EditFoodItemState(
+    val food: Food? = null,
     val name: String = "",
     val unit: Unit = Unit.GRAMS,
     val calories: Int = 0,
@@ -39,74 +41,108 @@ data class AddFoodItemState(
     val fiber: Float = 0f,
 )
 
-class AddFoodItemViewModel(
-    private val foodDao: FoodDao
+class EditFoodItemViewModel(
+    private val foodDao: FoodDao,
+    foodId: Long
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(AddFoodItemState())
+    init {
+        Log.d("EditFoodItemViewModel", "init $foodId")
+    }
 
-    val state = _state.stateIn(
+
+    private val _food = foodDao.getById(foodId)
+    private val _state = MutableStateFlow(EditFoodItemState())
+
+    val state = combine(_state, _food) { state, food ->
+        if (state.food == null && food != null) {
+            Log.d("EditFoodItemViewModel", "Got $food \n State: $state")
+            _state.update {
+                state.copy(
+                    food = food,
+                    name = food.name,
+                    unit = food.unit,
+                    calories = food.calories,
+                    carbs = food.carbs,
+                    fat = food.fat,
+                    protein = food.protein,
+                    sugar = food.sugar,
+                )
+            }
+            return@combine state.copy(
+                food = food,
+                name = food.name,
+                unit = food.unit,
+                calories = food.calories,
+                carbs = food.carbs,
+                fat = food.fat,
+                protein = food.protein,
+                sugar = food.sugar,
+            )
+        }
+        state
+    }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000),
-        AddFoodItemState()
+        EditFoodItemState()
     )
 
-    fun onEvent(event: AddFoodItemEvent) {
+    fun onEvent(event: EditFoodItemEvent) {
         when (event) {
-            is AddFoodItemEvent.SetName -> {
-                _state.update {
+            is EditFoodItemEvent.SetName -> {
+               _state.update {
                     it.copy(name = event.name)
                 }
             }
 
-            is AddFoodItemEvent.SetUnit -> {
+            is EditFoodItemEvent.SetUnit -> {
                 _state.update {
                     it.copy(unit = event.unit)
                 }
             }
 
-            is AddFoodItemEvent.SetCalories -> {
-                Log.d("Test","Calories: ${event.calories}")
+            is EditFoodItemEvent.SetCalories -> {
+                Log.d("Test", "Calories: ${event.calories}")
                 _state.update {
                     it.copy(calories = event.calories)
                 }
             }
 
-            is AddFoodItemEvent.SetCarbs -> {
+            is EditFoodItemEvent.SetCarbs -> {
                 _state.update {
                     it.copy(carbs = event.carbs)
                 }
             }
 
-            is AddFoodItemEvent.SetFat -> {
+            is EditFoodItemEvent.SetFat -> {
                 _state.update {
                     it.copy(fat = event.fat)
                 }
             }
 
-            is AddFoodItemEvent.SetProtein -> {
+            is EditFoodItemEvent.SetProtein -> {
                 _state.update {
                     it.copy(protein = event.protein)
                 }
             }
 
-            is AddFoodItemEvent.SetSugar -> {
+            is EditFoodItemEvent.SetSugar -> {
                 _state.update {
                     it.copy(sugar = event.sugar)
                 }
             }
 
-            is AddFoodItemEvent.SetFiber -> {
+            is EditFoodItemEvent.SetFiber -> {
                 _state.update {
                     it.copy(fiber = event.fiber)
                 }
             }
 
-            AddFoodItemEvent.Save -> {
+            EditFoodItemEvent.Save -> {
                 Log.d("Test", "Saving: ${_state.value}")
                 viewModelScope.launch {
                     val f = Food(
-                        uid = 0,
+                        uid = _state.value.food?.uid ?: 0,
                         name = _state.value.name,
                         unit = _state.value.unit,
                         calories = _state.value.calories,
@@ -126,7 +162,7 @@ class AddFoodItemViewModel(
     }
 
     companion object {
-        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+        fun Factory(foodId: Long): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(
                 modelClass: Class<T>,
@@ -135,7 +171,7 @@ class AddFoodItemViewModel(
                 val application =
                     checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
                 val db = AppDatabase.getDatabase(application)
-                return AddFoodItemViewModel(db.foodDao) as T
+                return EditFoodItemViewModel(db.foodDao, foodId) as T
             }
         }
     }

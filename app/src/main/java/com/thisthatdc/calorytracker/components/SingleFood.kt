@@ -1,7 +1,9 @@
 package com.thisthatdc.calorytracker.components
 
 import android.content.res.Configuration
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,12 +11,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -23,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import com.thisthatdc.calorytracker.data.food.Food
 import com.thisthatdc.calorytracker.data.food.FoodExample
 import com.thisthatdc.calorytracker.data.food.FoodState
+import com.thisthatdc.calorytracker.data.food.Unit.GENERIC
 import com.thisthatdc.calorytracker.ui.theme.CaloriesColor
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
 import com.thisthatdc.calorytracker.ui.theme.CarbsColor
@@ -30,17 +39,26 @@ import com.thisthatdc.calorytracker.ui.theme.FatColor
 import com.thisthatdc.calorytracker.ui.theme.ProteinColor
 import kotlin.math.ceil
 
+
+private val EMPTY: (Long) -> Unit = {}
+
 @Composable
 fun SingleFood(
     modifier: Modifier = Modifier,
     food: Food,
-    quantity: Int = 0,
-    onAddFood: (Long) -> Unit = {},
-    onDeleteFood: (Long) -> Unit = {},
+    quantity: Float = 0f,
+    onAddFood: (Long) -> Unit = EMPTY,
+    onDeleteFood: (Long) -> Unit = EMPTY,
+    onEdit: (Long) -> Unit = EMPTY
 ) {
+    var expanded by remember { mutableStateOf(false) }
     Column(
         modifier = modifier
             .fillMaxWidth()
+            .combinedClickable(
+                onClick = {onAddFood(food.uid)},
+                onLongClick = {expanded = !expanded}
+            )
             .padding(top = 5.dp, bottom = 5.dp),
         verticalArrangement = Arrangement.Center
     ) {
@@ -105,7 +123,7 @@ fun SingleFood(
                     )
                 }
             }
-            if (quantity == 0) {
+            if (quantity == 0f) {
                 IconButton(
                     modifier = modifier.weight(0.1f),
                     onClick = { onAddFood(food.uid) }
@@ -127,6 +145,26 @@ fun SingleFood(
                 }
             }
         }
+        if(onEdit !== EMPTY) {
+            Box(contentAlignment = Alignment.TopEnd) {
+                DropdownMenu(
+                    modifier = Modifier
+                        .fillMaxWidth(0.4f)
+                        .align(Alignment.Center),
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Edit") },
+                        onClick = {
+                            expanded = false
+                            onEdit(food.uid)
+                        }
+                    )
+                }
+            }
+        }
+
     }
     HorizontalDivider(thickness = 2.dp)
 }
@@ -137,7 +175,7 @@ fun scale(v: Float): Float {
 
 @Composable
 fun SingleFood(modifier: Modifier = Modifier, food: FoodState, onDeleteFood: (Long) -> Unit) {
-    val ratio = food.quantity / 100f
+    val ratio = if(food.unit == GENERIC) food.quantity / 1f else food.quantity / 100f
     val f = Food(
         uid = food.uid,
         name = food.name,
@@ -153,7 +191,7 @@ fun SingleFood(modifier: Modifier = Modifier, food: FoodState, onDeleteFood: (Lo
     SingleFood(
         modifier = modifier,
         food = f,
-        quantity = food.quantity.toInt(),
+        quantity = food.quantity,
         onAddFood = {},
         onDeleteFood = onDeleteFood,
     )

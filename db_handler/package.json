@@ -8,6 +8,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node ./src/index.js",
+    "fill": "node ./src/fill.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   }
 }

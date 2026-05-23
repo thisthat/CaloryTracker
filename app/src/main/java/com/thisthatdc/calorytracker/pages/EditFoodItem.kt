@@ -1,5 +1,6 @@
 package com.thisthatdc.calorytracker.pages
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -8,10 +9,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.ArrowDropDown
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -39,27 +42,37 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.thisthatdc.calorytracker.data.food.AddFoodItemEvent
-import com.thisthatdc.calorytracker.data.food.AddFoodItemState
-import com.thisthatdc.calorytracker.data.food.AddFoodItemViewModel
+import com.thisthatdc.calorytracker.data.food.EditFoodItemEvent
+import com.thisthatdc.calorytracker.data.food.EditFoodItemState
+import com.thisthatdc.calorytracker.data.food.EditFoodItemViewModel
 import com.thisthatdc.calorytracker.data.food.Unit.GENERIC
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddFoodItem(
+fun EditFoodItem(
     modifier: Modifier = Modifier,
-    state: AddFoodItemState,
-    onEvent: (AddFoodItemEvent) -> Unit,
+    state: EditFoodItemState,
+    onEvent: (EditFoodItemEvent) -> Unit,
     onBack: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
+    var calError by remember { mutableStateOf(false) }
 
-    var calString by remember { mutableStateOf("") }
-    var calError by remember { mutableStateOf(true) }
+    if(state.food == null) {
+        return CircularProgressIndicator(
+            modifier = Modifier.width(64.dp),
+            color = MaterialTheme.colorScheme.secondary,
+            trackColor = MaterialTheme.colorScheme.surfaceVariant,
+        )
+    }
 
+
+    var name by remember { mutableStateOf(state.food.name) }
     val regex = "^[0-9]*$".toRegex()
+
+    var calString by remember { mutableStateOf(state.calories.toString()) }
 
     val scrollBehavior = pinnedScrollBehavior(rememberTopAppBarState())
     Scaffold(
@@ -71,7 +84,7 @@ fun AddFoodItem(
                     titleContentColor = MaterialTheme.colorScheme.primary,
                 ),
                 title = {
-                    Text("Add new Food")
+                    Text("Edit $name")
                 },
                 navigationIcon = {
                     IconButton(onClick = {
@@ -98,7 +111,7 @@ fun AddFoodItem(
                 modifier = Modifier.fillMaxWidth(0.95f),
                 value = state.name,
                 placeholder = { Text("Name of your food") },
-                onValueChange = { onEvent(AddFoodItemEvent.SetName(it)) },
+                onValueChange = { onEvent(EditFoodItemEvent.SetName(it)) },
                 label = {
                     Text("Name")
                 }
@@ -114,7 +127,7 @@ fun AddFoodItem(
                 enabled = false,
                 onValueChange = {
                     if (it.isNotEmpty() && it.isDigitsOnly()) onEvent(
-                        AddFoodItemEvent.SetCalories(
+                        EditFoodItemEvent.SetCalories(
                             it.toInt()
                         )
                     )
@@ -136,21 +149,21 @@ fun AddFoodItem(
                     DropdownMenuItem(
                         text = { Text(com.thisthatdc.calorytracker.data.food.Unit.GRAMS.unit) },
                         onClick = {
-                            onEvent(AddFoodItemEvent.SetUnit(com.thisthatdc.calorytracker.data.food.Unit.GRAMS))
+                            onEvent(EditFoodItemEvent.SetUnit(com.thisthatdc.calorytracker.data.food.Unit.GRAMS))
                             expanded = false
                         }
                     )
                     DropdownMenuItem(
                         text = { Text(com.thisthatdc.calorytracker.data.food.Unit.LIQUID.unit) },
                         onClick = {
-                            onEvent(AddFoodItemEvent.SetUnit(com.thisthatdc.calorytracker.data.food.Unit.LIQUID))
+                            onEvent(EditFoodItemEvent.SetUnit(com.thisthatdc.calorytracker.data.food.Unit.LIQUID))
                             expanded = false
                         }
                     )
                     DropdownMenuItem(
                         text = { Text(GENERIC.unit) },
                         onClick = {
-                            onEvent(AddFoodItemEvent.SetUnit(GENERIC))
+                            onEvent(EditFoodItemEvent.SetUnit(GENERIC))
                             expanded = false
                         }
                     )
@@ -163,27 +176,27 @@ fun AddFoodItem(
                     // empty == 0
                     if (newStringValue == "") {
                         calString = newStringValue
-                        calError = true;
-                        onEvent(AddFoodItemEvent.SetCalories(0))
+                        calError = true
+                        onEvent(EditFoodItemEvent.SetCalories(0))
                         return@OutlinedTextField
                     }
                     // not a valid int
                     if (!regex.matches(newStringValue)) {
                         calError = true
-                        onEvent(AddFoodItemEvent.SetCalories(0))
+                        onEvent(EditFoodItemEvent.SetCalories(0))
                         return@OutlinedTextField
                     }
-                    calError = false;
+                    calError = false
                     calString = newStringValue
                     try {
                         val v = newStringValue.toInt()
                         if (v > 0) {
-                            onEvent(AddFoodItemEvent.SetCalories(v))
+                            onEvent(EditFoodItemEvent.SetCalories(v))
                         } else {
                             calError = true
                         }
                     } catch (_: NumberFormatException) {
-                        onEvent(AddFoodItemEvent.SetCalories(0))
+                        onEvent(EditFoodItemEvent.SetCalories(0))
                         calError = true
                     }
 
@@ -199,81 +212,102 @@ fun AddFoodItem(
                     }
                 }
             )
-            MacroText(
+            EditMacroText(
                 macroName = "Carbs",
                 unit = state.unit.unit,
                 onError = { v ->
-                    onEvent(AddFoodItemEvent.SetCarbs(0f))
+                    onEvent(EditFoodItemEvent.SetCarbs(0f))
                 },
                 onEvent = { v ->
                     onEvent(
-                        AddFoodItemEvent.SetCarbs(v)
+                        EditFoodItemEvent.SetCarbs(v)
                     )
-                })
-            MacroText(
+                },
+                macroString = state.carbs.toString(),
+                onChange = { }
+            )
+            EditMacroText(
                 macroName = "Fat",
                 unit = state.unit.unit,
                 onError = { v ->
-                    onEvent(AddFoodItemEvent.SetFat(0f))
+                    onEvent(EditFoodItemEvent.SetFat(0f))
                 },
                 onEvent = { v ->
                     onEvent(
-                        AddFoodItemEvent.SetFat(v)
+                        EditFoodItemEvent.SetFat(v)
                     )
-                })
-            MacroText(
+                },
+                macroString = state.fat.toString(),
+                onChange = { }
+            )
+            EditMacroText(
                 macroName = "Protein",
                 unit = state.unit.unit,
                 onError = { v ->
-                    onEvent(AddFoodItemEvent.SetProtein(0f))
+                    onEvent(EditFoodItemEvent.SetProtein(0f))
                 },
                 onEvent = { v ->
                     onEvent(
-                        AddFoodItemEvent.SetProtein(v)
+                        EditFoodItemEvent.SetProtein(v)
                     )
-                })
+                },
+                macroString = state.protein.toString(),
+                onChange = { }
+            )
 
-            MacroText(
+            EditMacroText(
                 macroName = "Sugar",
                 unit = state.unit.unit,
                 onError = { v ->
-                    onEvent(AddFoodItemEvent.SetSugar(0f))
+                    onEvent(EditFoodItemEvent.SetSugar(0f))
                 },
                 onEvent = { v ->
                     onEvent(
-                        AddFoodItemEvent.SetSugar(v)
+                        EditFoodItemEvent.SetSugar(v)
                     )
-                })
+                },
+                macroString = state.sugar.toString(),
+                onChange = { }
+            )
 
-            MacroText(
+            EditMacroText(
                 macroName = "Fiber",
                 unit = state.unit.unit,
                 onError = { v ->
-                    onEvent(AddFoodItemEvent.SetFiber(0f))
+                    onEvent(EditFoodItemEvent.SetFiber(0f))
                 },
                 onEvent = { v ->
                     onEvent(
-                        AddFoodItemEvent.SetFiber(v)
+                        EditFoodItemEvent.SetFiber(v)
                     )
-                })
+                },
+                macroString = state.fiber.toString(),
+                onChange = { }
+            )
 
             Spacer(modifier = Modifier.height(10.dp))
             FilledTonalButton(
                 modifier = Modifier.fillMaxWidth(0.95f),
                 onClick = {
-                    onEvent(AddFoodItemEvent.Save)
+                    onEvent(EditFoodItemEvent.Save)
                     onBack()
                 }
             ) {
-                Text("Save")
+                Text("Edit Save")
             }
         }
     }
 }
 
 @Composable
-fun MacroText(macroName: String, unit: String, onError: (Float) -> Unit, onEvent: (Float) -> Unit) {
-    var macroString by remember { mutableStateOf("") }
+fun EditMacroText(
+    macroName: String,
+    unit: String,
+    onError: (Float) -> Unit,
+    onEvent: (Float) -> Unit,
+    macroString: String,
+    onChange: (String) -> Unit,
+) {
     var macroError by remember { mutableStateOf(false) }
     val regex = "^[-+]?[0-9]*\\.?[0-9]+$".toRegex()
     OutlinedTextField(
@@ -282,14 +316,14 @@ fun MacroText(macroName: String, unit: String, onError: (Float) -> Unit, onEvent
         onValueChange = { newStringValue ->
             // empty == 0
             if (newStringValue == "") {
-                macroString = newStringValue
+                onChange(newStringValue)
                 macroError = false;
                 onError(0f)
                 return@OutlinedTextField
             }
             //ends with . we keep it going
             if (newStringValue.last() == '.' && newStringValue.count { it == '.' } == 1) {
-                macroString = newStringValue
+                onChange(newStringValue)
                 macroError = false;
                 return@OutlinedTextField
             }
@@ -300,7 +334,7 @@ fun MacroText(macroName: String, unit: String, onError: (Float) -> Unit, onEvent
                 return@OutlinedTextField
             }
             macroError = false;
-            macroString = newStringValue
+            onChange(newStringValue)
             try {
                 val v = newStringValue.toFloat()
                 if (v >= 0) {
@@ -325,13 +359,14 @@ fun MacroText(macroName: String, unit: String, onError: (Float) -> Unit, onEvent
 
 
 @Composable
-fun AddFoodItem(
+fun EditFoodItem(
     modifier: Modifier = Modifier,
     onBack: () -> Unit,
-    viewModel: AddFoodItemViewModel = viewModel(factory = AddFoodItemViewModel.Factory)
+    foodId: Long,
+    viewModel: EditFoodItemViewModel = viewModel(factory = EditFoodItemViewModel.Factory(foodId))
 ) {
     val state by viewModel.state.collectAsState()
-    AddFoodItem(
+    EditFoodItem(
         state = state,
         onEvent = viewModel::onEvent,
         onBack = onBack,
@@ -342,8 +377,8 @@ fun AddFoodItem(
 
 @Preview(showBackground = true)
 @Composable
-fun AddFoodItemPreview() {
+fun EditFoodItemPreview() {
     CaloryTrackerTheme {
-        AddFoodItem(onBack = {}, state = AddFoodItemState(), onEvent = {})
+        EditFoodItem(onBack = {}, state = EditFoodItemState(name = "Cavolo"), onEvent = {})
     }
 }

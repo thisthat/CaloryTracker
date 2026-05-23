@@ -1,6 +1,7 @@
 package com.thisthatdc.calorytracker.components
 
 import android.content.res.Configuration
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,6 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.thisthatdc.calorytracker.data.food.FoodState
 import com.thisthatdc.calorytracker.data.food.Meals
+import com.thisthatdc.calorytracker.data.food.Unit.GENERIC
 import com.thisthatdc.calorytracker.data.home.HomeState
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
 import kotlin.math.ceil
@@ -89,7 +91,7 @@ fun Meal(
     var totalProtein = 0
     var totalCarbs = 0
     food.forEach { food ->
-        val ratio = food.quantity / 100f
+        val ratio = if(food.unit == GENERIC) food.quantity / 1f else food.quantity / 100f
         totalCalories += ceil((ratio * food.calories).toDouble()).toInt()
         totalFat += ceil((ratio * food.fat).toDouble()).toInt()
         totalProtein += ceil((ratio * food.protein).toDouble()).toInt()

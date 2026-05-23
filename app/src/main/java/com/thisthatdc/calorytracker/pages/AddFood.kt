@@ -41,14 +41,6 @@ import com.thisthatdc.calorytracker.data.food.Meals
 import com.thisthatdc.calorytracker.tabs.AllTab
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
 
-enum class Tabs(
-    val title: String,
-    val component: @Composable (List<Food>, (Long) -> Unit, String) -> Unit
-) {
-    ALL(title = "All", component = ::AllTab),
-    YOUR_FOOD(title = "Your food", component = ::AllTab),
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddFood(
@@ -57,11 +49,10 @@ fun AddFood(
     onBack: () -> Unit,
     onFoodItemClick: () -> Unit,
     onFoodSelected: (Long) -> Unit,
+    onFoodEdit: (Long) -> Unit,
     foods: List<Food>,
-    userDefinedFood: List<Food>,
 ) {
     val scrollBehavior = pinnedScrollBehavior(rememberTopAppBarState())
-    var selectedDestination by rememberSaveable { mutableIntStateOf(0) }
     var textFieldState by rememberSaveable { mutableStateOf("") }
     Scaffold(
         modifier = modifier,
@@ -113,32 +104,12 @@ fun AddFood(
                 placeholder = { Text("Search for your food") },
                 trailingIcon = { Icon(Icons.Default.Search, contentDescription = "search") },
             )
-
-            PrimaryTabRow(
-                selectedTabIndex = selectedDestination,
-                modifier = modifier
-            ) {
-                Tabs.entries.forEachIndexed { index, elm ->
-                    Tab(
-                        selected = selectedDestination == index,
-                        onClick = {
-                            selectedDestination = index
-                        },
-                        text = {
-                            Text(
-                                text = elm.title,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
-                    )
-                }
-            }
-            Tabs.entries.forEachIndexed { index, elm ->
-                if (selectedDestination == index) {
-                    elm.component(if (index == 0) foods else userDefinedFood, onFoodSelected, textFieldState)
-                }
-            }
+            AllTab(
+                food = foods,
+                onAddFood = onFoodSelected,
+                searchWord = textFieldState,
+                onEdit = onFoodEdit,
+            )
         }
     }
 }
@@ -150,19 +121,19 @@ fun AddFood(
     onBack: () -> Unit,
     onFoodItemClick: () -> Unit,
     onFoodSelected: (Long) -> Unit,
+    onFoodEdit: (Long) -> Unit,
     viewModel: AddFoodViewModel = viewModel(factory = AddFoodViewModel.Factory)
 ) {
     val foods by viewModel.foods.collectAsState()
-    val userDefinedFood by viewModel.userDefinedFood.collectAsState()
     AddFood(
         foods = foods,
-        userDefinedFood = userDefinedFood,
         //onEvent = viewModel::onEvent,
         onBack = onBack,
         modifier = modifier,
         meal = meal,
         onFoodItemClick = onFoodItemClick,
         onFoodSelected = onFoodSelected,
+        onFoodEdit =  onFoodEdit
     )
 }
 
@@ -176,8 +147,8 @@ fun AddFoodPreview() {
             onBack = {},
             onFoodItemClick = {},
             onFoodSelected = {},
+            onFoodEdit = {},
             foods = FoodExample,
-            userDefinedFood = FoodExample
         )
     }
 }

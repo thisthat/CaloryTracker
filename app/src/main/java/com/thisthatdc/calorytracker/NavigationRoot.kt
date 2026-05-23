@@ -1,5 +1,6 @@
 package com.thisthatdc.calorytracker
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
@@ -13,6 +14,7 @@ import com.thisthatdc.calorytracker.data.food.Meals
 import com.thisthatdc.calorytracker.pages.AddFood
 import com.thisthatdc.calorytracker.pages.AddFoodItem
 import com.thisthatdc.calorytracker.pages.AddFoodMeal
+import com.thisthatdc.calorytracker.pages.EditFoodItem
 import com.thisthatdc.calorytracker.pages.Home
 import com.thisthatdc.calorytracker.pages.Settings
 import kotlinx.serialization.Serializable
@@ -27,6 +29,11 @@ data class AddFoodScreen(val meal: Meals, val day: Long) : NavKey
 
 @Serializable
 data class AddFoodItemScreen(val meal: Meals) : NavKey
+
+
+@Serializable
+data class EditFoodItemScreen(val foodId: Long) : NavKey
+
 
 @Serializable
 data class AddFoodMealScreen(val meal: Meals, val foodId: Long, val day: Long) : NavKey
@@ -99,7 +106,22 @@ fun NavigationRoot(
                             },
                             onFoodSelected = { foodId ->
                                 backStack.add(AddFoodMealScreen(key.meal, foodId, key.day))
+                            },
+                            onFoodEdit = { foodId ->
+                                Log.d("Navigation", "Editing $foodId")
+                                backStack.add(EditFoodItemScreen(foodId))
                             }
+                        )
+                    }
+                }
+
+                is EditFoodItemScreen -> {
+                    NavEntry(key = key) {
+                        EditFoodItem(
+                            onBack = {
+                                backStack.removeLastOrNull()
+                            },
+                            foodId = key.foodId,
                         )
                     }
                 }

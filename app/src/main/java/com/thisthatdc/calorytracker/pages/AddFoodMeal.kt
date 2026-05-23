@@ -27,6 +27,9 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
@@ -41,6 +44,7 @@ import com.thisthatdc.calorytracker.data.food.AddFoodMealViewModel
 import com.thisthatdc.calorytracker.data.food.FoodExample
 import com.thisthatdc.calorytracker.data.food.Meals
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
+import com.thisthatdc.calorytracker.data.food.Unit.GENERIC
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,13 +64,17 @@ fun AddFoodMeal(
         )
         return
     }
-    val ratio = state.quantity / 100f
+    val ratio = if (state.food.unit == GENERIC) state.quantity / 1f else state.quantity / 100f
     val macroState = MacroListState(
         caloriesStatus = "${ratio * state.food.calories}",
         proteinStatus = "${ratio * state.food.protein}",
         fatStatus = "${ratio * state.food.fat}",
         carbsStatus = "${ratio * state.food.carbs}"
     )
+
+    var quantityString by remember { mutableStateOf("") }
+    var quantityError by remember { mutableStateOf(true) }
+    val regex = "^[-+]?[0-9]*\\.?[0-9]+$".toRegex()
 
     val scrollBehavior = pinnedScrollBehavior(rememberTopAppBarState())
     Scaffold(
@@ -127,22 +135,50 @@ fun AddFoodMeal(
             )
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(0.95f),
-                value = if(state.quantity > 0L) state.quantity.toString() else "",
-                onValueChange = {
+                value = quantityString,
+                onValueChange = { newStringValue ->
+                    // empty == 0
+                    if (newStringValue == "") {
+                        quantityString = newStringValue
+                        quantityError = true;
+                        onEvent(AddFoodMealEvent.SetQuantity(0f))
+                        return@OutlinedTextField
+                    }
+                    if (newStringValue.last() == '.' && newStringValue.count { it == '.' } == 1) {
+                        quantityString = newStringValue
+                        quantityError = false;
+                        return@OutlinedTextField
+                    }
+                    // not a valid float
+                    if (!regex.matches(newStringValue)) {
+                        quantityError = true
+                        onEvent(AddFoodMealEvent.SetQuantity(0f))
+                        return@OutlinedTextField
+                    }
+                    quantityError = false;
+                    quantityString = newStringValue
                     try {
-                        val v = it.toLong()
-                        if (v > 0) onEvent(
-                            AddFoodMealEvent.SetQuantity(v)
-                        )
+                        val v = newStringValue.toFloat()
+                        if (v > 0) {
+                            onEvent(AddFoodMealEvent.SetQuantity(v))
+                        } else {
+                            quantityError = true
+                        }
                     } catch (_: NumberFormatException) {
-                        AddFoodMealEvent.SetQuantity(0)
+                        onEvent(AddFoodMealEvent.SetQuantity(0f))
+                        quantityError = true
                     }
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 label = {
                     Text("Quantity ${state.food.unit.unit}")
                 },
-                isError = state.quantity <= 0
+                isError = quantityError,
+                supportingText = {
+                    if (quantityError) {
+                        Text("Incorrect number format. Must be > 0")
+                    }
+                }
             )
             MacroList(
                 state = macroState
@@ -193,7 +229,7 @@ fun AddFoodMealPreview() {
         AddFoodMeal(
             onBack = {},
             state = AddFoodMealState(
-                quantity = 90,
+                quantity = 90f,
                 food = FoodExample[0],
             ),
             day = System.currentTimeMillis(),

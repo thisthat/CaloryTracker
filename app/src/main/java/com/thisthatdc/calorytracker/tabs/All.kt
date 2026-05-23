@@ -16,7 +16,13 @@ import com.thisthatdc.calorytracker.data.food.FoodExample
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
 
 @Composable
-fun AllTab(food: List<Food>, onAddFood: (Long) -> Unit, searchWord: String, modifier: Modifier = Modifier) {
+fun AllTab(
+    modifier: Modifier = Modifier,
+    food: List<Food>,
+    onAddFood: (Long) -> Unit,
+    onEdit: (Long) -> Unit,
+    searchWord: String
+) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(5.dp)
@@ -27,8 +33,8 @@ fun AllTab(food: List<Food>, onAddFood: (Long) -> Unit, searchWord: String, modi
                 .padding(start = 5.dp, end = 5.dp)
         ) {
             items(food) { f ->
-                if (searchWord.isEmpty() || f.name.contains(searchWord)) {
-                    SingleFood(modifier = modifier, food = f, onAddFood = onAddFood)
+                if (searchWord.isEmpty() || f.name.lowercase().contains(searchWord.lowercase())) {
+                    SingleFood(modifier = modifier, food = f, onAddFood = onAddFood, onEdit = onEdit)
                 }
             }
         }
@@ -39,6 +45,6 @@ fun AllTab(food: List<Food>, onAddFood: (Long) -> Unit, searchWord: String, modi
 @Composable
 fun AllTabPreview() {
     CaloryTrackerTheme {
-        AllTab(food = FoodExample, onAddFood = {}, searchWord="")
+        AllTab(food = FoodExample, onAddFood = {}, onEdit = {}, searchWord = "")
     }
 }

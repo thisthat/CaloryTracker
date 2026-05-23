@@ -1,10 +1,9 @@
 package com.thisthatdc.calorytracker.pages
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -51,6 +50,7 @@ import com.thisthatdc.calorytracker.data.home.HomeViewModel
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
 import kotlinx.coroutines.launch
 import kotlin.math.ceil
+import com.thisthatdc.calorytracker.data.food.Unit.GENERIC
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,7 +67,7 @@ fun Home(
     var totalProtein = 0
     var totalCarbs = 0
     state.food.forEach { food ->
-        val ratio = food.quantity / 100f
+        val ratio = if(food.unit == GENERIC) food.quantity / 1f else food.quantity / 100f
         totalCalories += ceil((ratio * food.calories).toDouble()).toInt()
         totalFat += ceil((ratio * food.fat).toDouble()).toInt()
         totalProtein += ceil((ratio * food.protein).toDouble()).toInt()
