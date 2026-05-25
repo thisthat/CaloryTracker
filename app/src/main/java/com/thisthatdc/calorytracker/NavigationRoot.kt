@@ -10,6 +10,7 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.thisthatdc.calorytracker.data.food.Meals
+import com.thisthatdc.calorytracker.garmin.GarminWebViewScreen
 
 import com.thisthatdc.calorytracker.pages.AddFood
 import com.thisthatdc.calorytracker.pages.AddFoodItem
@@ -43,12 +44,16 @@ data class AddFoodMealScreen(val meal: Meals, val foodId: Long, val day: Long) :
 data object SettingsScreen : NavKey
 
 
+@Serializable
+data object GarminScreen : NavKey
+
+
 @Composable
 fun NavigationRoot(
     modifier: Modifier = Modifier,
 ) {
     // initial screen
-    val backStack = rememberNavBackStack(HomeScreen)
+    val backStack = rememberNavBackStack(HomeScreen, GarminScreen)
 
     NavDisplay(
         backStack = backStack,
@@ -133,6 +138,12 @@ fun NavigationRoot(
                                 backStack.removeLastOrNull()
                             }
                         )
+                    }
+                }
+
+                is GarminScreen -> {
+                    NavEntry(key = key) {
+                        GarminWebViewScreen()
                     }
                 }
 

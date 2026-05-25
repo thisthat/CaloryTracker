@@ -101,7 +101,7 @@ fun Home(
             TopAppBar(
                 colors = topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.secondary,
                 ),
                 title = {
                     Text("Calories Tracker")

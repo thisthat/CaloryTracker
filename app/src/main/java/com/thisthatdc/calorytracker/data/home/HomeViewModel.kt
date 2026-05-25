@@ -107,6 +107,7 @@ class HomeViewModel(
                         foodEatenDao.delete(event.uid)
                     }
                 }
+                refresh()
             }
         }
     }
