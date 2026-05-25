@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -35,8 +36,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.thisthatdc.calorytracker.components.DateBar
 import com.thisthatdc.calorytracker.components.DateNavigator
@@ -44,13 +48,14 @@ import com.thisthatdc.calorytracker.components.FoodList
 import com.thisthatdc.calorytracker.components.MacroState
 import com.thisthatdc.calorytracker.components.Macros
 import com.thisthatdc.calorytracker.data.food.Meals
+import com.thisthatdc.calorytracker.data.food.Unit.GENERIC
 import com.thisthatdc.calorytracker.data.home.HomeEvent
 import com.thisthatdc.calorytracker.data.home.HomeState
 import com.thisthatdc.calorytracker.data.home.HomeViewModel
+import com.thisthatdc.calorytracker.garmin.garminWebViewScreen
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
 import kotlinx.coroutines.launch
 import kotlin.math.ceil
-import com.thisthatdc.calorytracker.data.food.Unit.GENERIC
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,7 +72,7 @@ fun Home(
     var totalProtein = 0
     var totalCarbs = 0
     state.food.forEach { food ->
-        val ratio = if(food.unit == GENERIC) food.quantity / 1f else food.quantity / 100f
+        val ratio = if (food.unit == GENERIC) food.quantity / 1f else food.quantity / 100f
         totalCalories += ceil((ratio * food.calories).toDouble()).toInt()
         totalFat += ceil((ratio * food.fat).toDouble()).toInt()
         totalProtein += ceil((ratio * food.protein).toDouble()).toInt()
@@ -91,6 +96,7 @@ fun Home(
     var foodId by remember { mutableLongStateOf(-1L) }
 
     val snackbarHostState = remember { SnackbarHostState() }
+    var showLoginScreen by remember { mutableStateOf(modifier.scale(0f)) }
 
     Scaffold(
         modifier = modifier,
@@ -124,6 +130,31 @@ fun Home(
             verticalArrangement = Arrangement.spacedBy(5.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            if(state.isGarminLoading) {
+                AndroidView(
+                    factory = { ctx ->
+                        garminWebViewScreen(
+                            context = ctx,
+                            d = state.day,
+                            callback = { s ->
+                                Log.d("Home", "Val: $s")
+                                // hide the screen again
+                                showLoginScreen = modifier.scale(0f)
+                                onEvent(HomeEvent.GarminData(s))
+                            },
+                            onLogin = {
+                                // if we need to login, show fullscreen
+                                showLoginScreen =
+                                    Modifier
+                                        .fillMaxHeight()
+                                        .fillMaxWidth()
+                            }
+                        )
+                    },
+                    modifier = showLoginScreen
+                )
+            }
+
             DateBar(
                 modifier = modifier
                     .padding(top = 10.dp)
@@ -142,12 +173,13 @@ fun Home(
                     .padding(start = 5.dp, end = 5.dp)
             ) {
                 item {
+                    Text(text = "Active: ${state.activeKilocalories} Resting: ${state.bmrKilocalories}", fontSize = 10.sp)
                     Macros(modifier, macroState)
                     Spacer(Modifier.height(10.dp))
                     FoodList(
                         modifier = modifier,
                         onFoodClick = onFoodClick,
-                        onDeleteFood = { uid ->  showModalConfirm = true; foodId = uid },
+                        onDeleteFood = { uid -> showModalConfirm = true; foodId = uid },
                         state = state
                     )
                 }
@@ -208,7 +240,7 @@ fun GreetingPreview() {
         Home(
             onFoodClick = { _: Meals, _: Long -> },
             onSettingsClick = {},
-            state = HomeState(),
+            state = HomeState(isGarminLoading = false),
             onEvent = {}
         )
     }

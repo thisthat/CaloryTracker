@@ -1,6 +1,5 @@
 package com.thisthatdc.calorytracker.data.home
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -9,7 +8,6 @@ import com.thisthatdc.calorytracker.data.AppDatabase
 import com.thisthatdc.calorytracker.data.food.FoodEatenDao
 import com.thisthatdc.calorytracker.data.food.FoodState
 import com.thisthatdc.calorytracker.data.settings.SettingsDao
-import com.thisthatdc.calorytracker.data.settings.SettingsEvent
 import com.thisthatdc.calorytracker.util.Time
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -22,6 +20,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.json.JSONObject
 import java.time.temporal.ChronoUnit
 import java.util.Date
 
@@ -30,7 +29,10 @@ sealed interface HomeEvent {
     object ResetDate : HomeEvent
     object PrevDate : HomeEvent
     object NextDate : HomeEvent
-    data class DeleteFood (val uid: Long): HomeEvent
+    data class DeleteFood(val uid: Long) : HomeEvent
+
+    data class GarminData(val json: String) : HomeEvent
+    object GarminError : HomeEvent
 }
 
 data class HomeState(
@@ -39,7 +41,11 @@ data class HomeState(
     val maxProtein: Int = 100,
     val maxCarbs: Int = 100,
     val food: List<FoodState> = emptyList(),
-    val day: Date = Date()
+    val day: Date = Date(),
+    val isGarminLoading: Boolean = true,
+    val isGarminError: Boolean = false,
+    val activeKilocalories: Float = 0.0f,
+    val bmrKilocalories: Float = 0.0f,
 )
 
 class HomeViewModel(
@@ -49,6 +55,7 @@ class HomeViewModel(
 
     private val _state = MutableStateFlow(HomeState())
     private val _settings = settingsDao.get()
+
     @OptIn(ExperimentalCoroutinesApi::class)
     private var _food = _state.mapLatest { state ->
         foodEatenDao.getDate(
@@ -101,6 +108,7 @@ class HomeViewModel(
                 _state.update { it.copy(day = Date.from(tomorrow)) }
                 refresh()
             }
+
             is HomeEvent.DeleteFood -> {
                 viewModelScope.launch {
                     withContext(Dispatchers.IO) {
@@ -108,6 +116,24 @@ class HomeViewModel(
                     }
                 }
                 refresh()
+            }
+
+            is HomeEvent.GarminError -> {
+                _state.update { it.copy(isGarminError = true, isGarminLoading = false) }
+            }
+
+            is HomeEvent.GarminData -> {
+                //data in event.json
+                val json = JSONObject(event.json)
+                val active = json.get("activeKilocalories").toString().toFloat()
+                val resting = json.get("bmrKilocalories").toString().toFloat()
+                _state.update {
+                    it.copy(
+                        isGarminLoading = false,
+                        activeKilocalories = active,
+                        bmrKilocalories = resting
+                    )
+                }
             }
         }
     }

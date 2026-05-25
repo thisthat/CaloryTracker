@@ -229,7 +229,7 @@ fun createNewDocumentIntent(): Intent {
     val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
         addCategory(Intent.CATEGORY_OPENABLE)
         type = "text/plain"
-        putExtra(Intent.EXTRA_TITLE, "test-${System.currentTimeMillis()}.txt")
+        putExtra(Intent.EXTRA_TITLE, "export-${System.currentTimeMillis()}.txt")
     }
     intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     intent.setFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
