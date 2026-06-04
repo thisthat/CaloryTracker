@@ -200,17 +200,6 @@ fun AddFoodItem(
                 }
             )
             MacroText(
-                macroName = "Carbs",
-                unit = state.unit.unit,
-                onError = { v ->
-                    onEvent(AddFoodItemEvent.SetCarbs(0f))
-                },
-                onEvent = { v ->
-                    onEvent(
-                        AddFoodItemEvent.SetCarbs(v)
-                    )
-                })
-            MacroText(
                 macroName = "Fat",
                 unit = state.unit.unit,
                 onError = { v ->
@@ -219,6 +208,17 @@ fun AddFoodItem(
                 onEvent = { v ->
                     onEvent(
                         AddFoodItemEvent.SetFat(v)
+                    )
+                })
+            MacroText(
+                macroName = "Carbs",
+                unit = state.unit.unit,
+                onError = { v ->
+                    onEvent(AddFoodItemEvent.SetCarbs(0f))
+                },
+                onEvent = { v ->
+                    onEvent(
+                        AddFoodItemEvent.SetCarbs(v)
                     )
                 })
             MacroText(

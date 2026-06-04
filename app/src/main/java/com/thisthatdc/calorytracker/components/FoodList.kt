@@ -1,7 +1,6 @@
 package com.thisthatdc.calorytracker.components
 
 import android.content.res.Configuration
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -86,16 +85,16 @@ fun Meal(
     onFoodClick: (Meals, Long) -> Unit,
     onDeleteFood: (Long) -> Unit,
 ) {
-    var totalCalories = 0
-    var totalFat = 0
-    var totalProtein = 0
-    var totalCarbs = 0
+    var totalCalories = 0.0
+    var totalFat = 0.0
+    var totalProtein = 0.0
+    var totalCarbs = 0.0
     food.forEach { food ->
         val ratio = if(food.unit == GENERIC) food.quantity / 1f else food.quantity / 100f
-        totalCalories += ceil((ratio * food.calories).toDouble()).toInt()
-        totalFat += ceil((ratio * food.fat).toDouble()).toInt()
-        totalProtein += ceil((ratio * food.protein).toDouble()).toInt()
-        totalCarbs += ceil((ratio * food.carbs).toDouble()).toInt()
+        totalCalories += (ratio * food.calories).toDouble()
+        totalFat += (ratio * food.fat).toDouble()
+        totalProtein += (ratio * food.protein).toDouble()
+        totalCarbs += (ratio * food.carbs).toDouble()
     }
     Column(
         modifier = modifier
@@ -104,10 +103,10 @@ fun Meal(
         Text(text = meal.name, modifier = modifier.padding(start = 10.dp, top = 10.dp))
         MacroList(
             modifier = modifier, state = MacroListState(
-                caloriesStatus = "$totalCalories",
-                proteinStatus = "$totalProtein",
-                fatStatus = "$totalFat",
-                carbsStatus = "$totalCarbs"
+                caloriesStatus = "${ceil(totalCalories).toInt()}",
+                proteinStatus = "${ceil(totalProtein).toInt()}",
+                fatStatus = "${ceil(totalFat).toInt()}",
+                carbsStatus = "${ceil(totalCarbs).toInt()}"
             )
         )
         HorizontalDivider(thickness = 1.dp)

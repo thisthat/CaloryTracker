@@ -7,12 +7,15 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import com.thisthatdc.calorytracker.data.AppDatabase
 import com.thisthatdc.calorytracker.data.food.FoodEatenDao
 import com.thisthatdc.calorytracker.data.food.FoodState
+import com.thisthatdc.calorytracker.data.settings.GarminCalories
+import com.thisthatdc.calorytracker.data.settings.GarminCaloriesDao
 import com.thisthatdc.calorytracker.data.settings.SettingsDao
 import com.thisthatdc.calorytracker.util.Time
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.mapLatest
@@ -51,6 +54,7 @@ data class HomeState(
 class HomeViewModel(
     settingsDao: SettingsDao,
     val foodEatenDao: FoodEatenDao,
+    val caloriesDao: GarminCaloriesDao,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(HomeState())
@@ -62,6 +66,11 @@ class HomeViewModel(
             Time.getStartingDayMillis(state.day),
             Time.getNextStartingDayMillis(state.day)
         ).first()
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private var _calories = _state.mapLatest { state ->
+        caloriesDao.get(Time.toStringDate(state.day)).first()
     }
 
     val state = combine(_state, _settings) { state, settings ->
@@ -76,6 +85,12 @@ class HomeViewModel(
         state
     }.combine(_food) { s, food ->
         s.copy(food = food)
+    }.combine(_calories) { s, calories ->
+        if (calories != null) {
+            s.copy(activeKilocalories = calories.active, bmrKilocalories = calories.rest)
+        } else {
+            s.copy(activeKilocalories = 0f, bmrKilocalories = 0f)
+        }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), HomeState())
 
     fun refresh() {
@@ -83,9 +98,13 @@ class HomeViewModel(
             Time.getStartingDayMillis(_state.value.day),
             Time.getNextStartingDayMillis(_state.value.day)
         )
+        val c = caloriesDao.get(Time.toStringDate(_state.value.day))
         viewModelScope.launch {
             f.collect { f ->
                 _state.update { it.copy(food = f) }
+            }
+            c.collect { c ->
+                _state.update { it.copy(activeKilocalories = c?.active ?: 0f, bmrKilocalories = c?.rest ?: 0f) }
             }
         }
     }
@@ -125,8 +144,11 @@ class HomeViewModel(
             is HomeEvent.GarminData -> {
                 //data in event.json
                 val json = JSONObject(event.json)
-                val active = json.get("activeKilocalories").toString().toFloat()
-                val resting = json.get("bmrKilocalories").toString().toFloat()
+                val activeObj = json.get("activeKilocalories").toString()
+                val restingObj = json.get("bmrKilocalories").toString()
+                val active = if(activeObj == "null") 0f else activeObj.toFloat()
+                val resting = if(restingObj == "null") 0f else restingObj.toFloat()
+                val newData = GarminCalories(Time.toStringDate(_state.value.day), active, resting)
                 _state.update {
                     it.copy(
                         isGarminLoading = false,
@@ -134,6 +156,12 @@ class HomeViewModel(
                         bmrKilocalories = resting
                     )
                 }
+                viewModelScope.launch {
+                    withContext(Dispatchers.IO) {
+                        caloriesDao.upsert(newData)
+                    }
+                }
+                refresh()
             }
         }
     }
@@ -148,7 +176,7 @@ class HomeViewModel(
                 val application =
                     checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
                 val db = AppDatabase.getDatabase(application)
-                return HomeViewModel(db.settingsDao, db.foodEatenDao) as T
+                return HomeViewModel(db.settingsDao, db.foodEatenDao, db.garminCalories) as T
             }
         }
     }

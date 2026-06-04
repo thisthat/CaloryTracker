@@ -8,10 +8,13 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -52,7 +55,7 @@ import com.thisthatdc.calorytracker.data.food.Unit.GENERIC
 import com.thisthatdc.calorytracker.data.home.HomeEvent
 import com.thisthatdc.calorytracker.data.home.HomeState
 import com.thisthatdc.calorytracker.data.home.HomeViewModel
-import com.thisthatdc.calorytracker.garmin.garminWebViewScreen
+import com.thisthatdc.calorytracker.garmin.Garmin
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
 import kotlinx.coroutines.launch
 import kotlin.math.ceil
@@ -87,7 +90,9 @@ fun Home(
         currentProtein = totalProtein,
         maxProtein = state.maxProtein,
         currentCarbs = totalCarbs,
-        maxCarbs = state.maxCarbs
+        maxCarbs = state.maxCarbs,
+        activeCalories = state.activeKilocalories,
+        restingCalories = state.bmrKilocalories,
     )
 
     val sheetState = rememberModalBottomSheetState()
@@ -97,6 +102,7 @@ fun Home(
 
     val snackbarHostState = remember { SnackbarHostState() }
     var showLoginScreen by remember { mutableStateOf(modifier.scale(0f)) }
+    var garminWebViewScreen by remember { mutableStateOf(null as Garmin?) }
 
     Scaffold(
         modifier = modifier,
@@ -113,6 +119,24 @@ fun Home(
                     Text("Calories Tracker")
                 },
                 actions = {
+                    IconButton(onClick = {
+                        garminWebViewScreen?.retrieveData(
+                            day = state.day,
+                        )
+                    }) {
+                        if (garminWebViewScreen?.isFetchingData?.value ?: false) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.width(36.dp),
+                                color = MaterialTheme.colorScheme.inversePrimary,
+                                trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Filled.Refresh,
+                                contentDescription = "Settings",
+                            )
+                        }
+                    }
                     IconButton(onClick = onSettingsClick) {
                         Icon(
                             imageVector = Icons.Filled.Settings,
@@ -130,26 +154,28 @@ fun Home(
             verticalArrangement = Arrangement.spacedBy(5.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if(state.isGarminLoading) {
+            if (state.isGarminLoading) {
                 AndroidView(
                     factory = { ctx ->
-                        garminWebViewScreen(
-                            context = ctx,
-                            d = state.day,
-                            callback = { s ->
-                                Log.d("Home", "Val: $s")
-                                // hide the screen again
-                                showLoginScreen = modifier.scale(0f)
-                                onEvent(HomeEvent.GarminData(s))
-                            },
-                            onLogin = {
-                                // if we need to login, show fullscreen
-                                showLoginScreen =
-                                    Modifier
-                                        .fillMaxHeight()
-                                        .fillMaxWidth()
-                            }
-                        )
+                        if (garminWebViewScreen == null) {
+                            garminWebViewScreen = Garmin(
+                                context = ctx,
+                                callback = { s ->
+                                    Log.d("Home", "Val: $s")
+                                    // hide the screen again
+                                    showLoginScreen = modifier.scale(0f)
+                                    onEvent(HomeEvent.GarminData(s))
+                                },
+                                onLogin = {
+                                    // if we need to login, show fullscreen
+                                    showLoginScreen =
+                                        Modifier
+                                            .fillMaxHeight()
+                                            .fillMaxWidth()
+                                }
+                            )
+                        }
+                        return@AndroidView garminWebViewScreen!!.webView
                     },
                     modifier = showLoginScreen
                 )
@@ -173,7 +199,10 @@ fun Home(
                     .padding(start = 5.dp, end = 5.dp)
             ) {
                 item {
-                    Text(text = "Active: ${state.activeKilocalories} Resting: ${state.bmrKilocalories}", fontSize = 10.sp)
+                    Text(
+                        text = "Active: ${state.activeKilocalories} Resting: ${state.bmrKilocalories}",
+                        fontSize = 10.sp
+                    )
                     Macros(modifier, macroState)
                     Spacer(Modifier.height(10.dp))
                     FoodList(

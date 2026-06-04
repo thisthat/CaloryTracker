@@ -1,7 +1,9 @@
 package com.thisthatdc.calorytracker.util
 
+import java.text.SimpleDateFormat
 import java.time.Clock
 import java.util.Date
+import java.util.Locale
 
 class Time {
     companion object {
@@ -31,6 +33,10 @@ class Time {
         fun isToday(day: Date): Boolean {
             val now = day.toInstant().toEpochMilli()
             return now > getCurrentStartingDayMillis() && now < getNextStartingDayMillis();
+        }
+
+        fun toStringDate(day: Date): String {
+           return SimpleDateFormat("yyyy-MM-dd", Locale.US).format(day)
         }
     }
 }

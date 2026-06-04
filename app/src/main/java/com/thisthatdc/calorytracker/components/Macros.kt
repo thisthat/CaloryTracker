@@ -29,6 +29,7 @@ import com.thisthatdc.calorytracker.ui.theme.FatOverColor
 import com.thisthatdc.calorytracker.ui.theme.ProteinColor
 import com.thisthatdc.calorytracker.ui.theme.ProteinOverColor
 import kotlin.math.abs
+import kotlin.math.ceil
 
 enum class MacroNutrient(
     val color: Color,
@@ -50,7 +51,9 @@ data class MacroState(
     val currentProtein: Int = 0,
     val maxProtein: Int = 100,
     val currentCarbs: Int = 0,
-    val maxCarbs: Int = 100
+    val maxCarbs: Int = 100,
+    val activeCalories: Float = 0f,
+    val restingCalories: Float = 0f,
 )
 
 data class MacroStateItem(
@@ -58,8 +61,16 @@ data class MacroStateItem(
     val maxVal: Int = 1300,
 )
 
+fun proportion(current: Int, maxCal: Int, activeCalories: Float): Int {
+    return ceil(((activeCalories + maxCal) * current) / maxCal).toInt()
+}
+
 @Composable
 fun Macros(modifier: Modifier = Modifier, state: MacroState) {
+    val deltaCalories = ceil(state.activeCalories.toDouble()).toInt() + state.maxCalories
+    val deltaprotein = proportion(state.maxProtein, state.maxCalories, state.activeCalories)
+    val deltaFat = proportion(state.maxFat, state.maxCalories, state.activeCalories)
+    val deltaCarbs = proportion(state.maxCarbs, state.maxCalories, state.activeCalories)
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(5.dp)
@@ -67,22 +78,22 @@ fun Macros(modifier: Modifier = Modifier, state: MacroState) {
         Macro(
             modifier,
             MacroNutrient.Calories,
-            state = MacroStateItem(currentVal = state.currentCalories, maxVal = state.maxCalories)
+            state = MacroStateItem(currentVal = state.currentCalories, maxVal = deltaCalories)
         )
         Macro(
             modifier,
             MacroNutrient.Protein,
-            state = MacroStateItem(currentVal = state.currentProtein, maxVal = state.maxProtein)
+            state = MacroStateItem(currentVal = state.currentProtein, maxVal = deltaprotein)
         )
         Macro(
             modifier,
             MacroNutrient.Fat,
-            state = MacroStateItem(currentVal = state.currentFat, maxVal = state.maxFat)
+            state = MacroStateItem(currentVal = state.currentFat, maxVal = deltaFat)
         )
         Macro(
             modifier,
             MacroNutrient.Carbs,
-            state = MacroStateItem(currentVal = state.currentCarbs, maxVal = state.maxCarbs)
+            state = MacroStateItem(currentVal = state.currentCarbs, maxVal = deltaCarbs)
         )
     }
 }
@@ -172,8 +183,9 @@ fun MacrosPreview() {
                         currentCarbs = 120,
                         maxCalories = 100,
                         maxProtein = 100,
-                        maxFat = 100,
+                        maxFat = 15,
                         maxCarbs = 100,
+                        activeCalories = 100f,
                     )
                 )
             }

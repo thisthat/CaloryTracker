@@ -9,21 +9,24 @@ import com.thisthatdc.calorytracker.data.food.Food
 import com.thisthatdc.calorytracker.data.food.FoodDao
 import com.thisthatdc.calorytracker.data.food.FoodEaten
 import com.thisthatdc.calorytracker.data.food.FoodEatenDao
+import com.thisthatdc.calorytracker.data.settings.GarminCalories
+import com.thisthatdc.calorytracker.data.settings.GarminCaloriesDao
 import com.thisthatdc.calorytracker.data.settings.Settings
 import com.thisthatdc.calorytracker.data.settings.SettingsDao
 
 @Database(
-    entities = [Settings::class, Food::class, FoodEaten::class],
-    version = 1,
+    entities = [Settings::class, Food::class, FoodEaten::class, GarminCalories::class],
+    version = 2,
     exportSchema = true,
-//    autoMigrations = [
-//        AutoMigration(from = 1, to = 2)
-//    ]
+    autoMigrations = [
+        AutoMigration(from = 1, to = 2)
+    ]
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract val settingsDao: SettingsDao
     abstract val foodDao: FoodDao
     abstract val foodEatenDao: FoodEatenDao
+    abstract val garminCalories: GarminCaloriesDao
 
     companion object {
         @Volatile

@@ -213,20 +213,6 @@ fun EditFoodItem(
                 }
             )
             EditMacroText(
-                macroName = "Carbs",
-                unit = state.unit.unit,
-                onError = { v ->
-                    onEvent(EditFoodItemEvent.SetCarbs(0f))
-                },
-                onEvent = { v ->
-                    onEvent(
-                        EditFoodItemEvent.SetCarbs(v)
-                    )
-                },
-                macroString = state.carbs.toString(),
-                onChange = { }
-            )
-            EditMacroText(
                 macroName = "Fat",
                 unit = state.unit.unit,
                 onError = { v ->
@@ -237,8 +223,20 @@ fun EditFoodItem(
                         EditFoodItemEvent.SetFat(v)
                     )
                 },
-                macroString = state.fat.toString(),
-                onChange = { }
+                initMacroString = state.fat.toString(),
+            )
+            EditMacroText(
+                macroName = "Carbs",
+                unit = state.unit.unit,
+                onError = { v ->
+                    onEvent(EditFoodItemEvent.SetCarbs(0f))
+                },
+                onEvent = { v ->
+                    onEvent(
+                        EditFoodItemEvent.SetCarbs(v)
+                    )
+                },
+                initMacroString = state.carbs.toString(),
             )
             EditMacroText(
                 macroName = "Protein",
@@ -251,8 +249,7 @@ fun EditFoodItem(
                         EditFoodItemEvent.SetProtein(v)
                     )
                 },
-                macroString = state.protein.toString(),
-                onChange = { }
+                initMacroString = state.protein.toString(),
             )
 
             EditMacroText(
@@ -266,8 +263,7 @@ fun EditFoodItem(
                         EditFoodItemEvent.SetSugar(v)
                     )
                 },
-                macroString = state.sugar.toString(),
-                onChange = { }
+                initMacroString = state.sugar.toString(),
             )
 
             EditMacroText(
@@ -281,8 +277,7 @@ fun EditFoodItem(
                         EditFoodItemEvent.SetFiber(v)
                     )
                 },
-                macroString = state.fiber.toString(),
-                onChange = { }
+                initMacroString = state.fiber.toString(),
             )
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -305,9 +300,9 @@ fun EditMacroText(
     unit: String,
     onError: (Float) -> Unit,
     onEvent: (Float) -> Unit,
-    macroString: String,
-    onChange: (String) -> Unit,
+    initMacroString: String,
 ) {
+    var macroString by remember { mutableStateOf(initMacroString) }
     var macroError by remember { mutableStateOf(false) }
     val regex = "^[-+]?[0-9]*\\.?[0-9]+$".toRegex()
     OutlinedTextField(
@@ -316,14 +311,14 @@ fun EditMacroText(
         onValueChange = { newStringValue ->
             // empty == 0
             if (newStringValue == "") {
-                onChange(newStringValue)
+                macroString = newStringValue
                 macroError = false;
                 onError(0f)
                 return@OutlinedTextField
             }
             //ends with . we keep it going
             if (newStringValue.last() == '.' && newStringValue.count { it == '.' } == 1) {
-                onChange(newStringValue)
+                macroString = newStringValue
                 macroError = false;
                 return@OutlinedTextField
             }
@@ -334,7 +329,7 @@ fun EditMacroText(
                 return@OutlinedTextField
             }
             macroError = false;
-            onChange(newStringValue)
+            macroString = newStringValue
             try {
                 val v = newStringValue.toFloat()
                 if (v >= 0) {

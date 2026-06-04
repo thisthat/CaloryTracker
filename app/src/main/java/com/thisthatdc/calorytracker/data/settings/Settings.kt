@@ -21,6 +21,16 @@ data class Settings (
     @ColumnInfo(name = "password", defaultValue="") val password: String,
 )
 
+
+@Serializable
+@Entity(tableName = "garmin_calories")
+data class GarminCalories (
+    @PrimaryKey @ColumnInfo(name = "day") val day: String,
+    @ColumnInfo(name = "active_calories") val active: Float,
+    @ColumnInfo(name = "rest_calories") val rest: Float,
+)
+
+
 @Dao
 interface SettingsDao {
     @Query("SELECT * FROM settings LIMIT 1")
@@ -28,5 +38,13 @@ interface SettingsDao {
 
     @Upsert
     fun upsert(settings: Settings)
+}
 
+@Dao
+interface GarminCaloriesDao {
+    @Query("SELECT * FROM garmin_calories WHERE day = :day LIMIT 1")
+    fun get(day: String): Flow<GarminCalories?>
+
+    @Upsert
+    fun upsert(calories: GarminCalories)
 }
