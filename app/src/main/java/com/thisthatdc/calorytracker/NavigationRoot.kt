@@ -17,6 +17,7 @@ import com.thisthatdc.calorytracker.pages.AddFoodMeal
 import com.thisthatdc.calorytracker.pages.EditFoodItem
 import com.thisthatdc.calorytracker.pages.Home
 import com.thisthatdc.calorytracker.pages.Settings
+import com.thisthatdc.calorytracker.pages.Test
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -42,12 +43,17 @@ data class AddFoodMealScreen(val meal: Meals, val foodId: Long, val day: Long) :
 @Serializable
 data object SettingsScreen : NavKey
 
+
+@Serializable
+data object TestScreen : NavKey
+
+
 @Composable
 fun NavigationRoot(
     modifier: Modifier = Modifier,
 ) {
     // initial screen
-    val backStack = rememberNavBackStack(HomeScreen)
+    val backStack = rememberNavBackStack(HomeScreen, TestScreen)
 
     NavDisplay(
         backStack = backStack,
@@ -57,6 +63,11 @@ fun NavigationRoot(
         ),
         entryProvider = { key ->
             when (key) {
+                is TestScreen -> {
+                    NavEntry(key = key) {
+                        Test()
+                    }
+                }
                 is HomeScreen -> {
                     NavEntry(key = key) {
                         Home(
