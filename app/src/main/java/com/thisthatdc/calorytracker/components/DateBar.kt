@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -18,10 +19,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.thisthatdc.calorytracker.data.home.ViewType
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
 
 @Composable
-fun DateBar(modifier: Modifier = Modifier) {
+fun DateBar(
+    modifier: Modifier = Modifier,
+    onClickDay: () -> Unit = {},
+    onClickWeek: () -> Unit = {},
+    onClickMonth: () -> Unit = {},
+    onClickYear: () -> Unit = {},
+    selected: ViewType = ViewType.Day
+) {
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -34,18 +43,43 @@ fun DateBar(modifier: Modifier = Modifier) {
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        TextButton(
-            onClick = {  }
-        ) { Text("1d") }
-        TextButton(
-            onClick = {  }
-        ) { Text("7d") }
-        TextButton(
-            onClick = {  }
-        ) { Text("4w") }
-        TextButton(
-            onClick = { }
-        ) { Text("1y") }
+        if (selected == ViewType.Day) {
+            FilledTonalButton(
+                onClick = onClickDay,
+            ) { Text("1d") }
+        } else {
+            TextButton(
+                onClick = onClickDay,
+            ) { Text("1d") }
+        }
+        if (selected == ViewType.Week) {
+            FilledTonalButton(
+                onClick = onClickWeek,
+            ) { Text("7d") }
+        } else {
+            TextButton(
+                onClick = onClickWeek
+            ) { Text("7d") }
+        }
+        if (selected == ViewType.Month) {
+            FilledTonalButton(
+                onClick = onClickMonth,
+            ) { Text("4w") }
+        } else {
+            TextButton(
+                onClick = onClickMonth
+            ) { Text("4w") }
+        }
+
+        if (selected == ViewType.Year) {
+            FilledTonalButton(
+                onClick = onClickYear,
+            ) { Text("1y") }
+        } else {
+            TextButton(
+                onClick = onClickYear
+            ) { Text("1y") }
+        }
     }
 }
 

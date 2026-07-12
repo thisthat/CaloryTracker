@@ -50,15 +50,19 @@ import com.thisthatdc.calorytracker.components.DateNavigator
 import com.thisthatdc.calorytracker.components.FoodList
 import com.thisthatdc.calorytracker.components.MacroState
 import com.thisthatdc.calorytracker.components.Macros
+import com.thisthatdc.calorytracker.components.chars.MacroChart
 import com.thisthatdc.calorytracker.data.food.Meals
 import com.thisthatdc.calorytracker.data.food.Unit.GENERIC
 import com.thisthatdc.calorytracker.data.home.HomeEvent
 import com.thisthatdc.calorytracker.data.home.HomeState
 import com.thisthatdc.calorytracker.data.home.HomeViewModel
+import com.thisthatdc.calorytracker.data.home.ViewType
 import com.thisthatdc.calorytracker.garmin.Garmin
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
 import kotlinx.coroutines.launch
 import kotlin.math.ceil
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -184,7 +188,12 @@ fun Home(
             DateBar(
                 modifier = modifier
                     .padding(top = 10.dp)
-                    .fillMaxWidth(0.95f)
+                    .fillMaxWidth(0.95f),
+                onClickDay = { onEvent(HomeEvent.ChangeViewType(ViewType.Day)) },
+                onClickWeek = { onEvent(HomeEvent.ChangeViewType(ViewType.Week)) },
+                onClickMonth = { onEvent(HomeEvent.ChangeViewType(ViewType.Month)) },
+                onClickYear = { onEvent(HomeEvent.ChangeViewType(ViewType.Year)) },
+                selected = state.viewType,
             )
             DateNavigator(
                 modifier = modifier,
@@ -193,29 +202,40 @@ fun Home(
                 onNext = { onEvent(HomeEvent.NextDate) },
                 onReset = { onEvent(HomeEvent.ResetDate) }
             )
-            LazyColumn(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .padding(start = 5.dp, end = 5.dp)
-            ) {
-                item {
-                    Text(
-                        text = "Active: ${state.activeKilocalories} Resting: ${state.bmrKilocalories}",
-                        fontSize = 10.sp
-                    )
-                    Macros(modifier, macroState)
-                    Spacer(Modifier.height(10.dp))
-                    FoodList(
-                        modifier = modifier,
-                        onFoodClick = onFoodClick,
-                        onDeleteFood = { uid -> showModalConfirm = true; foodId = uid },
-                        state = state
-                    )
+
+            if (state.viewType == ViewType.Day) {
+                LazyColumn(
+                    modifier = modifier
+                        .fillMaxWidth()
+                        .padding(start = 5.dp, end = 5.dp)
+                ) {
+                    item {
+                        Text(
+                            text = "Active: ${state.activeKilocalories} Resting: ${state.bmrKilocalories}",
+                            fontSize = 10.sp
+                        )
+                        Macros(modifier, macroState)
+                        Spacer(Modifier.height(10.dp))
+                        FoodList(
+                            modifier = modifier,
+                            onFoodClick = onFoodClick,
+                            onDeleteFood = { uid -> showModalConfirm = true; foodId = uid },
+                            state = state
+                        )
+                    }
                 }
+            } else if (state.viewType == ViewType.Week) {
+                MacroChart(modifier = modifier)
+            }
+            else if (state.viewType == ViewType.Month) {
+
+            }
+            else if (state.viewType == ViewType.Year) {
+
             }
         }
     }
-    if (showModalConfirm && foodId >= 0) {
+    if (state.viewType == ViewType.Day && showModalConfirm && foodId >= 0) {
         ModalBottomSheet(
             onDismissRequest = {
                 showModalConfirm = false

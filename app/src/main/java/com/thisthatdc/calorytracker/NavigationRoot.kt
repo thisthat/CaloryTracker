@@ -53,7 +53,7 @@ fun NavigationRoot(
     modifier: Modifier = Modifier,
 ) {
     // initial screen
-    val backStack = rememberNavBackStack(HomeScreen, TestScreen)
+    val backStack = rememberNavBackStack(HomeScreen)
 
     NavDisplay(
         backStack = backStack,

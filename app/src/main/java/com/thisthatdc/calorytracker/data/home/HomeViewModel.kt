@@ -15,7 +15,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.mapLatest
@@ -36,6 +35,15 @@ sealed interface HomeEvent {
 
     data class GarminData(val json: String) : HomeEvent
     object GarminError : HomeEvent
+
+    data class ChangeViewType(val viewType: ViewType) : HomeEvent
+}
+
+enum class ViewType {
+    Day,
+    Week,
+    Month,
+    Year,
 }
 
 data class HomeState(
@@ -49,6 +57,7 @@ data class HomeState(
     val isGarminError: Boolean = false,
     val activeKilocalories: Float = 0.0f,
     val bmrKilocalories: Float = 0.0f,
+    val viewType: ViewType = ViewType.Day,
 )
 
 class HomeViewModel(
@@ -162,6 +171,10 @@ class HomeViewModel(
                     }
                 }
                 refresh()
+            }
+
+            is HomeEvent.ChangeViewType -> {
+                _state.update { it.copy(viewType = event.viewType) }
             }
         }
     }
