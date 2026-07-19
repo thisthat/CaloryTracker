@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.thisthatdc.calorytracker.data.home.ViewType
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
 import com.thisthatdc.calorytracker.util.Time
 import java.text.DateFormat
@@ -32,7 +33,8 @@ fun DateNavigator(
     day: Date,
     onReset: () -> Unit,
     onNext: () -> Unit,
-    onPrev: () -> Unit
+    onPrev: () -> Unit,
+    viewType: ViewType = ViewType.Day
 ) {
     Row(
         modifier = modifier
@@ -51,12 +53,38 @@ fun DateNavigator(
                 onDoubleTap = { onReset() }
             )
         }
-        if (Time.isToday(day)) {
-            Text("Today", modifier = m)
-        } else {
-            val formatter: DateFormat = SimpleDateFormat("dd MMMM yyyy", Locale.ITALIAN)
-            Text(formatter.format(day), modifier = m)
+        when (viewType) {
+            ViewType.Day -> {
+                if (Time.isToday(day)) {
+                    Text("Today", modifier = m)
+                } else {
+                    val formatter: DateFormat = SimpleDateFormat("dd MMMM yyyy", Locale.US)
+                    Text(formatter.format(day), modifier = m)
+                }
+            }
+
+            ViewType.Week -> {
+                val formatter: DateFormat = SimpleDateFormat("dd", Locale.US)
+                val min = Date.from(Time.minusDays(day, 6))
+                Text(buildString {
+                    append(formatter.format(min))
+                    append("-")
+                    append(formatter.format(day))
+                    append(" ")
+                    append(SimpleDateFormat("MMM", Locale.US).format(day))
+                }, modifier = m)
+
+            }
+
+            ViewType.Month -> {
+                Text("Not yet implemented :)")
+            }
+
+            ViewType.Year -> {
+                Text("Not yet implemented :)")
+            }
         }
+
         IconButton(
             onClick = { onNext() }
         ) {
@@ -80,6 +108,7 @@ fun DateNavigatorPreview() {
                     onNext = {},
                     onPrev = {},
                     onReset = {},
+                    viewType = ViewType.Week
                 )
             }
         }

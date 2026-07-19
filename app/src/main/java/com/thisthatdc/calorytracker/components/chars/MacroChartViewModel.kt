@@ -6,10 +6,13 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.thisthatdc.calorytracker.data.AppDatabase
 import com.thisthatdc.calorytracker.data.food.FoodDao
+import com.thisthatdc.calorytracker.data.home.ViewType
+import com.thisthatdc.calorytracker.util.Time
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import java.util.Date
 
 enum class FilterType {
     Calories,
@@ -20,6 +23,8 @@ enum class FilterType {
 
 data class MacroChartState(
     val filterType: FilterType = FilterType.Calories,
+    val min: Date,
+    val max: Date,
 )
 
 
@@ -29,20 +34,16 @@ sealed interface MacroChartEvent {
 
 class MacroChartViewModel(
     foodDao: FoodDao,
+    rangeMin: Date,
+    rangeMax: Date,
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(MacroChartState())
-
-    val foods = foodDao.getAll().stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(5000),
-        emptyList()
-    )
+    private val _state = MutableStateFlow(MacroChartState(min = rangeMin, max = rangeMax))
 
     val state = _state.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000),
-        MacroChartState()
+        MacroChartState(min = rangeMin, max = rangeMax)
     )
 
     fun onEvent(event: MacroChartEvent) {
@@ -54,17 +55,19 @@ class MacroChartViewModel(
     }
 
     companion object {
-        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(
-                modelClass: Class<T>,
-                extras: CreationExtras
-            ): T {
-                val application =
-                    checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
-                val db = AppDatabase.getDatabase(application)
-                return MacroChartViewModel(db.foodDao) as T
+        fun Factory(day: Date, viewType: ViewType): ViewModelProvider.Factory =
+            object : ViewModelProvider.Factory {
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : ViewModel> create(
+                    modelClass: Class<T>,
+                    extras: CreationExtras
+                ): T {
+                    val application =
+                        checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
+                    val db = AppDatabase.getDatabase(application)
+                    val min = Date.from(Time.minusDays(day, 6))
+                    return MacroChartViewModel(db.foodDao, min, day) as T
+                }
             }
-        }
     }
 }

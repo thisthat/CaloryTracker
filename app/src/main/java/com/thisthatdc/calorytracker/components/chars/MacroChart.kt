@@ -23,6 +23,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.thisthatdc.calorytracker.data.home.ViewType
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
 import com.thisthatdc.charting.ColumnChart
 import com.thisthatdc.charting.models.BarProperties
@@ -33,11 +34,14 @@ import com.thisthatdc.charting.models.IndicatorCount
 import com.thisthatdc.charting.models.IndicatorPosition
 import com.thisthatdc.charting.models.LabelHelperProperties
 import com.thisthatdc.charting.models.LabelProperties
+import java.util.Date
 
 @Composable
 fun MacroChart(
     modifier: Modifier = Modifier,
-    viewModel: MacroChartViewModel = viewModel(factory = MacroChartViewModel.Factory)
+    day: Date,
+    viewType: ViewType = ViewType.Week,
+    viewModel: MacroChartViewModel = viewModel(factory = MacroChartViewModel.Factory(day, viewType)),
 ) {
     val state by viewModel.state.collectAsState()
     MacroChart(
@@ -64,7 +68,7 @@ fun MacroChart(
         verticalArrangement = Arrangement.spacedBy(5.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Charting(modifier.fillMaxHeight(0.5f), listOf())
+        Charting(modifier.fillMaxHeight(0.5f), state)
         Row(
             modifier = modifier
                 .fillMaxWidth(),
@@ -113,13 +117,13 @@ fun MacroChart(
 
 
 @Composable
-fun Charting(modifier: Modifier = Modifier, data: List<Bars>) {
+fun Charting(modifier: Modifier = Modifier, data: MacroChartState) {
     return ColumnChart(
         modifier = modifier,
-        data = remember {
+        data =
             listOf(
                 Bars(
-                    label = "Jan",
+                    label = data.min.toString(),
                     values = listOf(
                         Bars.Data(
                             label = "Linux",
@@ -148,8 +152,7 @@ fun Charting(modifier: Modifier = Modifier, data: List<Bars>) {
                         ),
                     ),
                 )
-            )
-        },
+            ),
         barProperties = BarProperties(
             cornerRadius = Bars.Data.Radius.Rectangle(topRight = 6.dp, topLeft = 6.dp),
             spacing = 30.dp,
@@ -182,6 +185,6 @@ fun Charting(modifier: Modifier = Modifier, data: List<Bars>) {
 @Composable
 fun GreetingPreview() {
     CaloryTrackerTheme {
-        MacroChart(modifier = Modifier, state = MacroChartState())
+        MacroChart(modifier = Modifier, state = MacroChartState(min = Date(), max = Date()))
     }
 }

@@ -2,6 +2,8 @@ package com.thisthatdc.calorytracker.util
 
 import java.text.SimpleDateFormat
 import java.time.Clock
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.Date
 import java.util.Locale
 
@@ -37,6 +39,14 @@ class Time {
 
         fun toStringDate(day: Date): String {
            return SimpleDateFormat("yyyy-MM-dd", Locale.US).format(day)
+        }
+
+        fun plusDays(day: Date, days: Int): Instant {
+            return day.toInstant().plus(days.toLong(), ChronoUnit.DAYS)
+        }
+
+        fun minusDays(day: Date, days: Int): Instant {
+            return day.toInstant().minus(days.toLong(), ChronoUnit.DAYS)
         }
     }
 }

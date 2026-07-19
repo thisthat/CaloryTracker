@@ -126,15 +126,23 @@ class HomeViewModel(
             }
 
             is HomeEvent.NextDate -> {
-                val tomorrow = _state.value.day.toInstant().plus(1, ChronoUnit.DAYS)
-                _state.update { it.copy(day = Date.from(tomorrow)) }
-                refresh()
+                val view = _state.value.viewType
+                if(view == ViewType.Day || view == ViewType.Week) {
+                    val offset = if (view == ViewType.Day) 1 else 7
+                    val next = Time.plusDays(_state.value.day, offset)
+                    _state.update { it.copy(day = Date.from(next)) }
+                    refresh()
+                }
             }
 
             is HomeEvent.PrevDate -> {
-                val tomorrow = _state.value.day.toInstant().minus(1, ChronoUnit.DAYS)
-                _state.update { it.copy(day = Date.from(tomorrow)) }
-                refresh()
+                val view = _state.value.viewType
+                if(view == ViewType.Day || view == ViewType.Week) {
+                    val offset = if (view == ViewType.Day) 1 else 7
+                    val prev = Time.minusDays(_state.value.day, offset)
+                    _state.update { it.copy(day = Date.from(prev)) }
+                    refresh()
+                }
             }
 
             is HomeEvent.DeleteFood -> {

@@ -200,7 +200,8 @@ fun Home(
                 day = state.day,
                 onPrev = { onEvent(HomeEvent.PrevDate) },
                 onNext = { onEvent(HomeEvent.NextDate) },
-                onReset = { onEvent(HomeEvent.ResetDate) }
+                onReset = { onEvent(HomeEvent.ResetDate) },
+                viewType = state.viewType,
             )
 
             if (state.viewType == ViewType.Day) {
@@ -225,7 +226,7 @@ fun Home(
                     }
                 }
             } else if (state.viewType == ViewType.Week) {
-                MacroChart(modifier = modifier)
+                MacroChart(modifier = modifier, day = state.day, viewType = state.viewType)
             }
             else if (state.viewType == ViewType.Month) {
 
