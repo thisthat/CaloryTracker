@@ -6,6 +6,7 @@ import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 import androidx.room.Query
 import androidx.room.Upsert
+import com.thisthatdc.calorytracker.data.food.FoodState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.Serializable
 
@@ -44,6 +45,9 @@ interface SettingsDao {
 interface GarminCaloriesDao {
     @Query("SELECT * FROM garmin_calories WHERE day = :day LIMIT 1")
     fun get(day: String): Flow<GarminCalories?>
+
+    @Query("SELECT * FROM garmin_calories WHERE day = :day LIMIT 1")
+    fun collect(day: String): GarminCalories?
 
     @Upsert
     fun upsert(calories: GarminCalories)

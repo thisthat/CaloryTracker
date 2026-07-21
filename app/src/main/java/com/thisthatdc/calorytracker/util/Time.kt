@@ -38,7 +38,12 @@ class Time {
         }
 
         fun toStringDate(day: Date): String {
-           return SimpleDateFormat("yyyy-MM-dd", Locale.US).format(day)
+            return SimpleDateFormat("yyyy-MM-dd", Locale.US).format(day)
+        }
+
+        fun toStringDate(ts: Long): String {
+            return SimpleDateFormat("yyyy-MM-dd", Locale.US)
+                .format(Date.from(Instant.ofEpochMilli(ts)))
         }
 
         fun plusDays(day: Date, days: Int): Instant {
