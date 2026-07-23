@@ -350,7 +350,7 @@ fun ColumnChart(
                                         height = barHeight.absoluteValue.toFloat()
                                     ),
                                 )
-                                // adjust here with the right wrapping
+                                //TODO: adjust here with the right wrapping
                                 val rectOverflow = Rect(
                                     offset = Offset(
                                         x = barX-2f,
