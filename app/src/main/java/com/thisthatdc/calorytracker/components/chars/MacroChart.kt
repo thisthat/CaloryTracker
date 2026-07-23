@@ -77,7 +77,7 @@ fun MacroChart(
         verticalArrangement = Arrangement.spacedBy(5.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Charting(modifier.fillMaxHeight(0.5f), data, state)
+        Charting(modifier.fillMaxHeight(0.5f).fillMaxWidth(0.99f), data, state)
         Row(
             modifier = modifier
                 .fillMaxWidth(),

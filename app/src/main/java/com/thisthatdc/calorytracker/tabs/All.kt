@@ -7,6 +7,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -14,6 +19,7 @@ import com.thisthatdc.calorytracker.components.SingleFood
 import com.thisthatdc.calorytracker.data.food.Food
 import com.thisthatdc.calorytracker.data.food.FoodExample
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
+import kotlinx.coroutines.delay
 
 @Composable
 fun AllTab(
@@ -23,6 +29,17 @@ fun AllTab(
     onEdit: (Long) -> Unit,
     searchWord: String
 ) {
+    var filteredFood by remember(food) { mutableStateOf(food) }
+
+    LaunchedEffect(searchWord, food) {
+        delay(100)
+        filteredFood = if (searchWord.isEmpty()) {
+            food
+        } else {
+            food.filter { it.name.contains(searchWord, ignoreCase = true) }
+        }
+    }
+
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(5.dp)
@@ -32,10 +49,8 @@ fun AllTab(
                 .fillMaxWidth()
                 .padding(start = 5.dp, end = 5.dp)
         ) {
-            items(food) { f ->
-                if (searchWord.isEmpty() || f.name.lowercase().contains(searchWord.lowercase())) {
-                    SingleFood(modifier = modifier, food = f, onAddFood = onAddFood, onEdit = onEdit)
-                }
+            items(filteredFood) { f ->
+                SingleFood(modifier = modifier, food = f, onAddFood = onAddFood, onEdit = onEdit)
             }
         }
     }

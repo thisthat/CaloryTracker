@@ -19,7 +19,7 @@
 |---------|-------------|
 | 🍎 **Food Tracking** | Log meals with calories, macros (protein, carbs, fat), sugar & fiber |
 | 📊 **Custom Charts** | Beautiful line, pie, column & row charts built on Compose Canvas |
-| 🎯 **Macro Goals** | Set daily targets for calories, protein, carbs & fat with sliders |
+| 🎯 **Macro Goals** | Set targets for calories, protein, carbs & fat with sliders |
 | 💾 **Local-First** | Room database with migrations — your data stays on your device |
 | 📤 **Data Export** | Export your entire database as JSON for backups or analysis |
 | 🏃 **Garmin Connect** | WebView integration for syncing activity data |
@@ -29,75 +29,13 @@
 
 ---
 
-## 🏗️ Architecture
-
-```
-CaloryTracker/
-├── app/
-│   ├── src/main/java/com/thisthatdc/calorytracker/
-│   │   ├── components/          # Reusable UI components
-│   │   │   ├── MacroList.kt     # Macro nutrient display
-│   │   │   ├── MacroChartViewModel.kt  # Chart state management
-│   │   │   ├── DateNavigator.kt # Date picker/navigator
-│   │   │   ├── FoodImage.kt     # Food photo display
-│   │   │   ├── FoodList.kt      # Food list with macros
-│   │   │   ├── SingleFood.kt    # Single food item view
-│   │   │   ├── DateBar.kt       # Date header bar
-│   │   │   └── Macros.kt        # Macro summary cards
-│   │   ├── pages/               # Screen-level composables
-│   │   │   ├── Home.kt          # Main dashboard with charts
-│   │   │   ├── AddFood.kt       # Add food flow (search/create)
-│   │   │   ├── AddFoodMeal.kt   # Add food to specific meal
-│   │   │   ├── AddFoodItem.kt   # Create custom food item
-│   │   │   ├── EditFoodItem.kt  # Edit existing food
-│   │   │   ├── Settings.kt      # Goals & data export
-│   │   │   └── Test.kt          # Chart playground
-│   │   ├── tabs/                # Tab content
-│   │   │   └── All.kt           # All foods tab
-│   │   ├── garmin/
-│   │   │   └── GarminWebView.kt # Garmin Connect WebView
-│   │   ├── data/
-│   │   │   ├── food/            # Food domain + Room entities
-│   │   │   │   ├── Food.kt      # Food, FoodEaten, DAOs
-│   │   │   │   ├── AddFoodViewModel.kt
-│   │   │   │   ├── AddFoodItemViewModel.kt
-│   │   │   │   ├── EditFoodItemViewModel.kt
-│   │   │   │   └── AddFoodMealViewModel.kt
-│   │   │   ├── settings/        # Settings domain
-│   │   │   │   ├── Settings.kt      # Macro goals entity
-│   │   │   │   ├── SettingsState.kt # UI state
-│   │   │   │   ├── SettingsEvent.kt # User events
-│   │   │   │   └── SettingsViewModel.kt
-│   │   │   ├── home/            # Home screen domain
-│   │   │   │   └── HomeViewModel.kt
-│   │   │   └── AppDatabase.kt   # Room database + migrations
-│   │   ├── util/
-│   │   │   ├── Json.kt          # Kotlin Serialization setup
-│   │   │   └── Time.kt          # Date/time utilities
-│   │   ├── charting/            # 🎨 Custom Charting Library
-│   │   │   ├── LineChart.kt     # Animated line charts
-│   │   │   ├── PieChart.kt      # Pie/donut charts
-│   │   │   ├── ColumnChart.kt   # Vertical bar charts
-│   │   │   ├── RowChart.kt      # Horizontal bar charts
-│   │   │   ├── models/          # Chart data models
-│   │   │   ├── extensions/      # Drawing extensions
-│   │   │   └── utils/           # Chart utilities
-│   │   ├── NavigationRoot.kt    # Type-safe navigation graph
-│   │   ├── MainActivity.kt      # Entry point + theme
-│   │   └── ui/theme/            # Material 3 theming
-│   └── build.gradle.kts
-├── gradle/libs.versions.toml    # Version catalog
-└── settings.gradle.kts
-```
-
 ### Key Architectural Decisions
 
 | Decision | Rationale |
 |----------|-----------|
-| **MVVM + StateFlow** | Reactive UI state, testable ViewModels |
+| **MVVM + StateFlow** | Reactive UI state |
 | **Room + KSP** | Type-safe DB, fast compile-time codegen |
 | **Navigation 3** | Composable, type-safe routes with nested graphs |
-| **Custom Charting** | Zero-dependency, fully customizable, animated Canvas charts |
 | **Kotlin Serialization** | Multi-platform JSON for export/import |
 | **Min SDK 36** | Edge-to-edge, predictive back, modern APIs only |
 
@@ -105,7 +43,7 @@ CaloryTracker/
 
 ## 🎨 The Charting Library
 
-A standout feature — a **from-scratch charting library** built on `Canvas` with zero external dependencies:
+Thanks to [ComposeCharts](https://github.com/ehsannarmani/ComposeCharts):
 
 ```kotlin
 // Line chart with animations, gradients, popups, indicators
@@ -235,58 +173,5 @@ Goals persist in Room and drive the Home dashboard progress rings.
 
 ## 🗺️ Roadmap
 
-- [ ] **Cloud sync** (Firebase / custom backend)
-- [ ] **Barcode scanner** for food lookup
-- [ ] **Recipe builder** (combine foods → save as meal)
 - [ ] **Widget** for home screen macro summary
-- [ ] **Wear OS** companion tile
-- [ ] **Unit tests** for ViewModels & chart math
-- [ ] **Screenshot tests** for charts (Roborazzi / Compose Preview)
 
----
-
-## 📄 License
-
-```
-MIT License
-
-Copyright (c) 2024 Giovanni Liva
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
-
----
-
-## 🙏 Acknowledgments
-
-- **Jetpack Compose** team for the amazing UI toolkit
-- **Room** team for the best mobile database DX
-- **Navigation 3** for type-safe composable routing
-- **Material 3** for the beautiful adaptive components
-- All the OSS maintainers whose libraries make this possible
-
----
-
-<div align="center">
-
-**Built with ❤️ and Kotlin by [Giovanni Liva](https://github.com/thisthatdc)**
-
-⭐ Star this repo if you find it useful!
-
-</div>
