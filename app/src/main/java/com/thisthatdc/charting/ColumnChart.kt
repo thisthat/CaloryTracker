@@ -29,6 +29,7 @@ import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
@@ -41,6 +42,8 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
+import com.thisthatdc.calorytracker.ui.theme.CaloriesOverColor
+import com.thisthatdc.calorytracker.ui.theme.FatOverColor
 import com.thisthatdc.charting.components.RCChartLabelHelper
 import com.thisthatdc.charting.extensions.addRoundRect
 import com.thisthatdc.charting.extensions.drawGridLines
@@ -347,10 +350,22 @@ fun ColumnChart(
                                         height = barHeight.absoluteValue.toFloat()
                                     ),
                                 )
+                                // adjust here with the right wrapping
+                                val rectOverflow = Rect(
+                                    offset = Offset(
+                                        x = barX-2f,
+                                        y = (zeroY - barHeight.toFloat().coerceAtLeast(0f))-5f
+                                    ),
+                                    size = Size(
+                                        width = stroke+4f,
+                                        height = barHeight.absoluteValue.toFloat()+5f
+                                    ),
+                                )
                                 if (barWithRect.none { it.rect == rect }) {
                                     barWithRect.add(BarPopupData(col, rect, dataIndex, valueIndex))
                                 }
                                 val path = Path()
+                                val pathOverflow = Path()
 
                                 var radius =
                                     (col.properties?.cornerRadius ?: barProperties.cornerRadius)
@@ -359,11 +374,31 @@ fun ColumnChart(
                                 }
 
                                 path.addRoundRect(rect = rect, radius = radius.asRadiusPx(this))
+                                pathOverflow.addRoundRect(rect = rectOverflow, radius = radius.asRadiusPx(this))
                                 val alpha = if (rect == selectedValue.value?.rect) {
                                     1f - (barAlphaDecreaseOnPopup * popupAnimation.value)
                                 } else {
                                     1f
                                 }
+                                val measureResult =
+                                    textMeasurer.measure(
+                                        col.label.orEmpty(),
+                                        style = labelProperties.textStyle
+                                    )
+                                drawText(
+                                    textLayoutResult = measureResult,
+                                    topLeft = Offset(
+                                        x = barX-(stroke/2.5f),
+                                        y = zeroY + measureResult.size.height/2f
+                                    )
+                                )
+                                drawPath(
+                                    path = pathOverflow,
+                                    brush =  SolidColor(FatOverColor),
+                                    alpha = alpha,
+                                    style = (col.properties?.style
+                                        ?: barProperties.style).getStyle(density.density)
+                                )
                                 drawPath(
                                     path = path,
                                     brush = col.color,
@@ -387,10 +422,11 @@ fun ColumnChart(
             }
             HorizontalLabels(
                 labelProperties = labelProperties,
-                labels = labelProperties.labels.ifEmpty {
-                    data
-                        .map { it.label }
-                },
+                labels = listOf(""),
+//                    labelProperties.labels.ifEmpty {
+//                    data
+//                        .map { it.label }
+//                },
                 indicatorProperties = indicatorProperties,
                 chartWidth = chartWidth.floatValue,
                 density = density,

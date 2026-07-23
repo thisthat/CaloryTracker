@@ -66,6 +66,7 @@ fun HorizontalLabels(
             modifier = widthModifier
                 .padding(
                     start = (xPadding / density.density).dp,
+                    end = (xPadding / density.density).dp,
                 ), horizontalArrangement = Arrangement.SpaceBetween
         ) {
             labels.forEachIndexed { index, label ->
@@ -76,7 +77,7 @@ fun HorizontalLabels(
                             (labelMeasures[index].size.width / minLabelWidth.toFloat()),
                             .5f
                         )
-                    translationX =
+                    translationX = 0f
                         (-(labelMeasures[index].size.width - minLabelWidth.toFloat())) - (labelProperties.rotation.padding?.toPx()
                             ?: (minLabelWidth / 2f))
                 } else textModifier

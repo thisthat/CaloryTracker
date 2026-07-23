@@ -84,40 +84,22 @@ fun MacroChart(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (state.filterType == FilterType.Calories) {
-                FilledTonalButton(onClick = { onCaloriesClick() }) {
-                    Text("Calories")
-                }
-            } else {
-                OutlinedButton(onClick = { onCaloriesClick() }) {
-                    Text("Calories")
-                }
-            }
-            if (state.filterType == FilterType.Protein) {
-                FilledTonalButton(onClick = { onProteinClick() }) {
-                    Text("Protein")
-                }
-            } else {
-                OutlinedButton(onClick = { onProteinClick() }) {
-                    Text("Protein")
-                }
-            }
-            if (state.filterType == FilterType.Fat) {
-                FilledTonalButton(onClick = { onFatClick() }) {
-                    Text("Fat")
-                }
-            } else {
-                OutlinedButton(onClick = { onFatClick() }) {
-                    Text("Fat")
-                }
-            }
-            if (state.filterType == FilterType.Carb) {
-                FilledTonalButton(onClick = { onCarbsClick() }) {
-                    Text("Carbs")
-                }
-            } else {
-                OutlinedButton(onClick = { onCarbsClick() }) {
-                    Text("Carbs")
+            val filters = listOf(
+                Triple("Calories", FilterType.Calories, onCaloriesClick),
+                Triple("Protein", FilterType.Protein, onProteinClick),
+                Triple("Fat", FilterType.Fat, onFatClick),
+                Triple("Carbs", FilterType.Carb, onCarbsClick)
+            )
+
+            filters.forEach { (label, type, onClick) ->
+                if (state.filterType == type) {
+                    FilledTonalButton(onClick = onClick) {
+                        Text(label)
+                    }
+                } else {
+                    OutlinedButton(onClick = onClick) {
+                        Text(label)
+                    }
                 }
             }
         }
@@ -144,7 +126,7 @@ fun Charting(modifier: Modifier = Modifier, data: LinkedHashMap<String, Long>, s
             label = formatLabel(entry.key),
             values = listOf(
                 Bars.Data(
-                    label = label,
+                    label = formatLabel(entry.key),
                     value = entry.value.toDouble(),
                     color = SolidColor(color),
                 )
