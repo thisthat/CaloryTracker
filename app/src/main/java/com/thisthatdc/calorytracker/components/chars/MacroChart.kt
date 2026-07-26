@@ -13,11 +13,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
@@ -50,11 +53,12 @@ fun MacroChart(
 ) {
     val state by viewModel.state.collectAsState()
     viewModel.onEvent(MacroChartEvent.ChangeDay(day))
-    Log.d("MacroChartViewModel", "Debug: ${viewModel.computeBars()}")
+    val data = viewModel.computeBars()
+    Log.d("MacroChartViewModel", "Debug: ${data}")
     MacroChart(
         modifier,
         state,
-        data = viewModel.computeBars(),
+        data = data,
         onCaloriesClick = { viewModel.onEvent(MacroChartEvent.ChangeMacro(FilterType.Calories)) },
         onProteinClick = { viewModel.onEvent(MacroChartEvent.ChangeMacro(FilterType.Protein)) },
         onFatClick = { viewModel.onEvent(MacroChartEvent.ChangeMacro(FilterType.Fat)) },
@@ -66,7 +70,7 @@ fun MacroChart(
 fun MacroChart(
     modifier: Modifier = Modifier,
     state: MacroChartState,
-    data: LinkedHashMap<String, Long> = LinkedHashMap(),
+    data: Map<String, MacroChartDatapoint> = LinkedHashMap(),
     onCaloriesClick: () -> Unit = {},
     onProteinClick: () -> Unit = {},
     onFatClick: () -> Unit = {},
@@ -77,7 +81,7 @@ fun MacroChart(
         verticalArrangement = Arrangement.spacedBy(5.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Charting(modifier.fillMaxHeight(0.5f).fillMaxWidth(0.99f), data, state)
+        Charting(modifier.fillMaxHeight(0.5f).fillMaxWidth(0.95f), data, state)
         Row(
             modifier = modifier
                 .fillMaxWidth(),
@@ -113,7 +117,7 @@ fun formatLabel(date: String): String {
 
 
 @Composable
-fun Charting(modifier: Modifier = Modifier, data: LinkedHashMap<String, Long>, state: MacroChartState) {
+fun Charting(modifier: Modifier = Modifier, data: Map<String, MacroChartDatapoint>, state: MacroChartState) {
     var points = listOf<Bars>()
     val (color, label) = when(state.filterType) {
         FilterType.Calories -> Pair(CaloriesColor, "KCal")
@@ -127,7 +131,7 @@ fun Charting(modifier: Modifier = Modifier, data: LinkedHashMap<String, Long>, s
             values = listOf(
                 Bars.Data(
                     label = formatLabel(entry.key),
-                    value = entry.value.toDouble(),
+                    value = entry.value.maxValue.toDouble(),
                     color = SolidColor(color),
                 )
             )
