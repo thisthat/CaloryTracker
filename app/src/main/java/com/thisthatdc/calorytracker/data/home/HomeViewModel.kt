@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -25,6 +26,7 @@ import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.time.temporal.ChronoUnit
 import java.util.Date
+import kotlin.text.get
 
 
 sealed interface HomeEvent {
@@ -67,7 +69,10 @@ class HomeViewModel(
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(HomeState())
-    private val _settings = settingsDao.get()
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val _settings = _state.mapLatest { state ->
+        settingsDao.get(Time.toStringDate(state.day)).firstOrNull()
+    }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private var _food = _state.mapLatest { state ->

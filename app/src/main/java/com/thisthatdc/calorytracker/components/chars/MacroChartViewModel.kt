@@ -57,7 +57,7 @@ class MacroChartViewModel(
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(MacroChartState(min = rangeMin, max = rangeMax))
-    private val _settings = settingsDao.get()
+    private val _settings = settingsDao.get(Time.toStringDate(System.currentTimeMillis()))
     private val _food = foodEatenDao.getDate(
         Time.getStartingDayMillis(rangeMin),
         Time.getNextStartingDayMillis(rangeMax)

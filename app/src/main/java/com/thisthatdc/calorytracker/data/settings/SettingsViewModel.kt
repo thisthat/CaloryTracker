@@ -9,6 +9,7 @@ import com.thisthatdc.calorytracker.data.AppDatabase
 import com.thisthatdc.calorytracker.data.food.FoodDao
 import com.thisthatdc.calorytracker.data.food.FoodEatenDao
 import com.thisthatdc.calorytracker.util.JsonWriter
+import com.thisthatdc.calorytracker.util.Time
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -25,7 +26,7 @@ class SettingsViewModel(
     private val foodEatenDao: FoodEatenDao,
 ) : ViewModel() {
 
-    private val _settings = dao.get()
+    private val _settings = dao.get(Time.toStringDate(System.currentTimeMillis()))
     private var firstLoad = true;
     private val _state = MutableStateFlow(SettingsState())
 
@@ -54,6 +55,7 @@ class SettingsViewModel(
             SettingsEvent.SaveSettings -> {
                 viewModelScope.launch {
                     val currentSettings = _settings.firstOrNull()
+                    val today = Time.toStringDate(System.currentTimeMillis())
                     val s = Settings(
                         uid = currentSettings?.uid ?: 0,
                         calories = _state.value.calories,
@@ -62,9 +64,16 @@ class SettingsViewModel(
                         carbs = _state.value.carbs,
                         username = _state.value.username,
                         password = _state.value.password,
+                        lastChangedAt = today,
                     )
                     withContext(Dispatchers.IO) {
-                        dao.upsert(s)
+                        // old case where there is no last changed yet && there is but it's a different day
+                        if(currentSettings?.lastChangedAt?.isEmpty() == false && currentSettings.lastChangedAt.equals(today)) {
+                            // todo
+                            Log.d("SettingsViewModel", "Nothing to save")
+                        } else {
+                            dao.upsert(s)
+                        }
                     }
                 }
             }
@@ -119,7 +128,7 @@ class SettingsViewModel(
 
             is SettingsEvent.SaveDB -> {
                 try {
-                    JsonWriter.write(event.outputStream, dao.get(), foodDao.getAll(), foodEatenDao.getAll())
+                    JsonWriter.write(event.outputStream, dao.get(Time.toStringDate(System.currentTimeMillis())), foodDao.getAll(), foodEatenDao.getAll())
                 } catch (e: Throwable) {
                     Log.w("Json DB Exporter", e)
                 } finally {
