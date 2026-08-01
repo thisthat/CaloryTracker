@@ -29,10 +29,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.thisthatdc.calorytracker.data.home.ViewType
 import com.thisthatdc.calorytracker.ui.theme.CaloriesColor
+import com.thisthatdc.calorytracker.ui.theme.CaloriesOverColor
 import com.thisthatdc.calorytracker.ui.theme.CaloryTrackerTheme
 import com.thisthatdc.calorytracker.ui.theme.CarbsColor
+import com.thisthatdc.calorytracker.ui.theme.CarbsOverColor
 import com.thisthatdc.calorytracker.ui.theme.FatColor
+import com.thisthatdc.calorytracker.ui.theme.FatOverColor
 import com.thisthatdc.calorytracker.ui.theme.ProteinColor
+import com.thisthatdc.calorytracker.ui.theme.ProteinOverColor
 import com.thisthatdc.charting.ColumnChart
 import com.thisthatdc.charting.models.BarProperties
 import com.thisthatdc.charting.models.Bars
@@ -54,7 +58,6 @@ fun MacroChart(
     val state by viewModel.state.collectAsState()
     viewModel.onEvent(MacroChartEvent.ChangeDay(day))
     val data = viewModel.computeBars()
-    Log.d("MacroChartViewModel", "Debug: ${data}")
     MacroChart(
         modifier,
         state,
@@ -119,11 +122,11 @@ fun formatLabel(date: String): String {
 @Composable
 fun Charting(modifier: Modifier = Modifier, data: Map<String, MacroChartDatapoint>, state: MacroChartState) {
     var points = listOf<Bars>()
-    val (color, label) = when(state.filterType) {
-        FilterType.Calories -> Pair(CaloriesColor, "KCal")
-        FilterType.Protein -> Pair(ProteinColor, "Protein")
-        FilterType.Fat -> Pair(FatColor, "Fat")
-        FilterType.Carb -> Pair(CarbsColor, "Carbs")
+    val (color, overFlowColor) = when(state.filterType) {
+        FilterType.Calories -> Pair(CaloriesColor, CaloriesOverColor)
+        FilterType.Protein -> Pair(ProteinColor, ProteinOverColor)
+        FilterType.Fat -> Pair(FatColor, FatOverColor)
+        FilterType.Carb -> Pair(CarbsColor, CarbsOverColor)
     }
     for (entry in data.entries) {
         points = points.plus(Bars(
@@ -131,8 +134,10 @@ fun Charting(modifier: Modifier = Modifier, data: Map<String, MacroChartDatapoin
             values = listOf(
                 Bars.Data(
                     label = formatLabel(entry.key),
-                    value = entry.value.maxValue.toDouble(),
+                    value = entry.value.value,
+                    maxValue = entry.value.maxValue,
                     color = SolidColor(color),
+                    overflowColor = SolidColor(overFlowColor),
                 )
             )
         ))

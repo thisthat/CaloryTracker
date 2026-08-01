@@ -31,7 +31,6 @@ class SettingsViewModel(
     private val _state = MutableStateFlow(SettingsState())
 
     val state = combine(_state, _settings) { state, settings ->
-        Log.d("SettingsViewModel", "state=$state, settings=$settings")
         if (firstLoad && settings != null) {
             firstLoad = false;
             _state.update {

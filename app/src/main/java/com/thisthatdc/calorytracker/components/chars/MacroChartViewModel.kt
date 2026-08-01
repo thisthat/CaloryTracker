@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import com.thisthatdc.calorytracker.data.AppDatabase
 import com.thisthatdc.calorytracker.data.food.FoodEatenDao
 import com.thisthatdc.calorytracker.data.food.FoodState
+import com.thisthatdc.calorytracker.data.food.Unit.GENERIC
 import com.thisthatdc.calorytracker.data.home.ViewType
 import com.thisthatdc.calorytracker.data.settings.GarminCaloriesDao
 import com.thisthatdc.calorytracker.data.settings.Settings
@@ -23,6 +24,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import java.util.Date
 import kotlin.collections.LinkedHashMap
+import kotlin.math.ceil
 
 enum class FilterType {
     Calories,
@@ -32,10 +34,10 @@ enum class FilterType {
 }
 
 data class DailyMacro(
-    val calories: Long = 0L,
-    val carbs: Long = 0L,
-    val fat:  Long = 0L,
-    val protein:  Long = 0L,
+    val calories: Float = 0f,
+    val carbs: Float = 0f,
+    val fat:  Float = 0f,
+    val protein:  Float = 0f,
 )
 
 data class MacroChartState(
@@ -48,8 +50,8 @@ data class MacroChartState(
 )
 
 data class MacroChartDatapoint(
-    val value: Long,
-    val maxValue: Long,
+    val value: Double,
+    val maxValue: Double,
 )
 
 
@@ -66,13 +68,17 @@ class MacroChartViewModel(
     rangeMax: Date,
 ) : ViewModel() {
 
-    private val DEFAULT_DATAPOINT = MacroChartDatapoint(0L, 0L)
+    private val DEFAULT_DATAPOINT = MacroChartDatapoint(0.0, 0.0)
 
     private val _state = MutableStateFlow(MacroChartState(min = rangeMin, max = rangeMax))
-    private val _food = foodEatenDao.getDate(
-        Time.getStartingDayMillis(rangeMin),
-        Time.getNextStartingDayMillis(rangeMax)
-    )
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val _food = _state.mapLatest { state ->
+        foodEatenDao.getDate(
+            Time.getStartingDayMillis(state.min),
+            Time.getNextStartingDayMillis(state.max)
+        ).first()
+    }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private var _macroMapping = _state.mapLatest { state ->
@@ -82,13 +88,13 @@ class MacroChartViewModel(
             val ds = Time.toStringDate(Date.from(date))
             val cal = caloriesDao.get(ds).first()
             val settings = settingsDao.get(ds).firstOrNull()
-            val maxCal = settings?.calories ?: 0
-            val activeCalories = if(cal?.active != null) cal.active.toLong() else 0L
+            val maxCal = settings?.calories?.toFloat() ?: 0f
+            val activeCalories = if(cal?.active != null) cal.active else 0f
             macroMapping[ds] = DailyMacro(
                 calories = maxCal + activeCalories,
-                carbs = settings?.carbs?.toLong() ?: 0,
-                fat = settings?.fat?.toLong() ?: 0,
-                protein = settings?.protein?.toLong() ?: 0
+                carbs = settings?.carbs?.toFloat() ?: 0f,
+                fat = settings?.fat?.toFloat() ?: 0f,
+                protein = settings?.protein?.toFloat() ?: 0f
             )
         }
         macroMapping
@@ -117,16 +123,18 @@ class MacroChartViewModel(
         }
     }
 
-    private fun mapAttr(f: FoodState): Long {
-        return when (state.value.filterType) {
-            FilterType.Calories -> f.calories.toLong()
-            FilterType.Protein -> f.protein.toLong()
-            FilterType.Fat -> f.fat.toLong()
-            FilterType.Carb -> f.carbs.toLong()
+    private fun mapAttr(f: FoodState): Float {
+        val ratio = if(f.unit == GENERIC) f.quantity / 1f else f.quantity / 100f
+        val value = when (state.value.filterType) {
+            FilterType.Calories -> f.calories.toFloat()
+            FilterType.Protein -> f.protein
+            FilterType.Fat -> f.fat
+            FilterType.Carb -> f.carbs
         }
+        return (ratio * value)
     }
 
-    private fun mapAttr(macros: DailyMacro): Long {
+    private fun mapAttr(macros: DailyMacro): Float {
         return when (state.value.filterType) {
             FilterType.Calories -> macros.calories
             FilterType.Protein -> macros.protein
@@ -141,11 +149,11 @@ class MacroChartViewModel(
             val date = Time.plusDays(state.value.min, i)
             val ts = Time.toStringDate(Date.from(date))
             val macros = state.value.macros.getOrDefault(ts, DailyMacro())
-            dataMapping[ts] = MacroChartDatapoint(0L, mapAttr(macros))
+            dataMapping[ts] = MacroChartDatapoint(0.0, mapAttr(macros).toDouble())
         }
         for(f in state.value.food) {
             val ts = Time.toStringDate(f.createdAt)
-            val v = dataMapping.getOrDefault(ts, DEFAULT_DATAPOINT).value + mapAttr(f)
+            val v = ceil(dataMapping.getOrDefault(ts, DEFAULT_DATAPOINT).value + mapAttr(f))
             val max = dataMapping.getOrDefault(ts, DEFAULT_DATAPOINT).maxValue
             dataMapping[ts] = MacroChartDatapoint(v, max)
         }

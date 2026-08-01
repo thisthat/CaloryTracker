@@ -1,5 +1,6 @@
 package com.thisthatdc.charting
 
+import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.tween
@@ -42,8 +43,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
-import com.thisthatdc.calorytracker.ui.theme.CaloriesOverColor
-import com.thisthatdc.calorytracker.ui.theme.FatOverColor
+import com.thisthatdc.calorytracker.ui.theme.ChartDefaultColor
 import com.thisthatdc.charting.components.RCChartLabelHelper
 import com.thisthatdc.charting.extensions.addRoundRect
 import com.thisthatdc.charting.extensions.drawGridLines
@@ -100,11 +100,16 @@ fun ColumnChart(
         )
     ),
     barAlphaDecreaseOnPopup: Float = .4f,
-    maxValue: Double = data.maxOfOrNull { it.values.maxOfOrNull { it.value } ?: 0.0 } ?: 0.0,
-    minValue: Double = if (data.any { it.values.any { it.value < 0 } }) -maxValue else 0.0,
+    minValue: Double = if (data.any { it.values.any { it.value < 0 } }) -Double.MIN_VALUE else 0.0,
 ) {
+    var maxValue: Double = data.maxOfOrNull { it.values.maxOfOrNull { it.value } ?: 0.0 } ?: 0.0
     checkRCMinValue(minValue, data)
     checkRCMaxValue(maxValue, data)
+
+    val overflowMaxValue = data.maxOfOrNull { it.values.maxOfOrNull { it.maxValue } ?: 0.0 } ?: 0.0
+    if (overflowMaxValue > maxValue) {
+        maxValue = overflowMaxValue
+    }
 
     val density = LocalDensity.current
 
@@ -322,7 +327,6 @@ fun ColumnChart(
                         yAxisProperties = gridProperties.yAxisProperties,
                         gridEnabled = gridProperties.enabled
                     )
-
                     data.forEachIndexed { dataIndex, columnChart ->
                         columnChart.values.forEachIndexed { valueIndex, col ->
                             if (col.value != 0.0) {
@@ -333,6 +337,9 @@ fun ColumnChart(
 
                                 val barHeight =
                                     ((col.value * size.height) / (computedMaxValue - minValue)) * col.animator.value
+                                val barHeightBaseline = ((col.maxValue * size.height) / (computedMaxValue - minValue)) * col.animator.value
+                                val over = col.value - col.maxValue
+                                val barHeightOverflow = ((over * size.height) / (computedMaxValue - minValue)) * col.animator.value
                                 val everyBarWidth = (stroke + spacing)
 
                                 val barX =
@@ -351,20 +358,31 @@ fun ColumnChart(
                                     ),
                                 )
                                 //TODO: adjust here with the right wrapping
-                                val rectOverflow = Rect(
+                                val rectBaseline = Rect(
                                     offset = Offset(
                                         x = barX-2f,
-                                        y = (zeroY - barHeight.toFloat().coerceAtLeast(0f))-5f
+                                        y = (zeroY - barHeightBaseline.toFloat().coerceAtLeast(0f))
                                     ),
                                     size = Size(
                                         width = stroke+4f,
-                                        height = barHeight.absoluteValue.toFloat()+5f
+                                        height = barHeightBaseline.absoluteValue.toFloat()
+                                    ),
+                                )
+                                val rectOverflow = Rect(
+                                    offset = Offset(
+                                        x = barX,
+                                        y = (zeroY - barHeightOverflow.toFloat().coerceAtLeast(0f))
+                                    ),
+                                    size = Size(
+                                        width = stroke,
+                                        height = barHeightOverflow.absoluteValue.toFloat()
                                     ),
                                 )
                                 if (barWithRect.none { it.rect == rect }) {
                                     barWithRect.add(BarPopupData(col, rect, dataIndex, valueIndex))
                                 }
                                 val path = Path()
+                                val pathBaseline = Path()
                                 val pathOverflow = Path()
 
                                 var radius =
@@ -374,7 +392,8 @@ fun ColumnChart(
                                 }
 
                                 path.addRoundRect(rect = rect, radius = radius.asRadiusPx(this))
-                                pathOverflow.addRoundRect(rect = rectOverflow, radius = radius.asRadiusPx(this))
+                                pathBaseline.addRoundRect(rect = rectBaseline, radius = radius.asRadiusPx(this))
+                                pathOverflow.addRoundRect(rect = rectOverflow, radius = Bars.Data.RadiusPx.None)
                                 val alpha = if (rect == selectedValue.value?.rect) {
                                     1f - (barAlphaDecreaseOnPopup * popupAnimation.value)
                                 } else {
@@ -392,13 +411,16 @@ fun ColumnChart(
                                         y = zeroY + measureResult.size.height/2f
                                     )
                                 )
-                                drawPath(
-                                    path = pathOverflow,
-                                    brush =  SolidColor(FatOverColor),
-                                    alpha = alpha,
-                                    style = (col.properties?.style
-                                        ?: barProperties.style).getStyle(density.density)
-                                )
+                                // draw iff we have some macros left and we wanna see how much was missed
+                                if(col.maxValue > col.value) {
+                                    drawPath(
+                                        path = pathBaseline,
+                                        brush =  SolidColor(ChartDefaultColor),
+                                        alpha = alpha,
+                                        style = (col.properties?.style
+                                            ?: barProperties.style).getStyle(density.density)
+                                    )
+                                }
                                 drawPath(
                                     path = path,
                                     brush = col.color,
@@ -406,6 +428,17 @@ fun ColumnChart(
                                     style = (col.properties?.style
                                         ?: barProperties.style).getStyle(density.density)
                                 )
+                                if(col.value > col.maxValue) {
+                                    // we had an overflow of the macros after the other macro chart
+                                    // so it stays on top
+                                    drawPath(
+                                        path = pathOverflow,
+                                        brush =  col.overflowColor ?: col.color,
+                                        alpha = alpha,
+                                        style = (col.properties?.style
+                                            ?: barProperties.style).getStyle(density.density)
+                                    )
+                                }
                             }
                         }
                     }

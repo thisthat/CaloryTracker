@@ -135,7 +135,6 @@ fun Macro(modifier: Modifier = Modifier, macro: MacroNutrient, state: MacroState
         ) {
             if (isOver) {
                 val p = 1 - (progress - 1)
-                Log.d("Progress", "New Progress $p")
                 LinearProgressIndicator(
                     progress = { p },
                     modifier = modifier.fillMaxWidth(0.8f),

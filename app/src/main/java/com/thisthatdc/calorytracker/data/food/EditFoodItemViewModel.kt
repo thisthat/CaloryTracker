@@ -46,17 +46,11 @@ class EditFoodItemViewModel(
     foodId: Long
 ) : ViewModel() {
 
-    init {
-        Log.d("EditFoodItemViewModel", "init $foodId")
-    }
-
-
     private val _food = foodDao.getById(foodId)
     private val _state = MutableStateFlow(EditFoodItemState())
 
     val state = combine(_state, _food) { state, food ->
         if (state.food == null && food != null) {
-            Log.d("EditFoodItemViewModel", "Got $food \n State: $state")
             _state.update {
                 state.copy(
                     food = food,
@@ -102,7 +96,6 @@ class EditFoodItemViewModel(
             }
 
             is EditFoodItemEvent.SetCalories -> {
-                Log.d("Test", "Calories: ${event.calories}")
                 _state.update {
                     it.copy(calories = event.calories)
                 }
@@ -139,7 +132,6 @@ class EditFoodItemViewModel(
             }
 
             EditFoodItemEvent.Save -> {
-                Log.d("Test", "Saving: ${_state.value}")
                 viewModelScope.launch {
                     val f = Food(
                         uid = _state.value.food?.uid ?: 0,

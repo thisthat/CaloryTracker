@@ -118,7 +118,6 @@ fun NavigationRoot(
                                 backStack.add(AddFoodMealScreen(key.meal, foodId, key.day))
                             },
                             onFoodEdit = { foodId ->
-                                Log.d("Navigation", "Editing $foodId")
                                 backStack.add(EditFoodItemScreen(foodId))
                             }
                         )

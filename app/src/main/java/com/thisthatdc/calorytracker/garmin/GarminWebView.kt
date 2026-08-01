@@ -57,7 +57,6 @@ data class Garmin(val context: Context, val callback: (String) -> Unit, val onLo
                 view: WebView,
                 request: WebResourceRequest
             ): Boolean {
-                Log.d("WebView", "Overrider loading: ${request.url}")
                 return false
             }
 
@@ -74,18 +73,14 @@ data class Garmin(val context: Context, val callback: (String) -> Unit, val onLo
                     cookie = CookieManager.getInstance().getCookie(url)
                     view?.evaluateJavascript("(function() { return document.body.innerHTML.match(/\"displayName\":\"([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\"/)[1]; })();") { result ->
                         uuid = strip(result)
-                        Log.d("WebViewJS", "UUID Result: -$uuid-")
                     }
                     view?.evaluateJavascript("(function() { return document.head.innerHTML.match(/<meta name=\"csrf-token\" content=\"([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\">/)[1]; })();") { result ->
                         token = strip(result)
-                        Log.d("WebViewJS", "TOKEN Result: -$token-")
                         connect(cookie, uuid, token, callback)
                     }
                 } else {
-                    Log.d("WebView", "Need to login")
                     onLogin()
                 }
-                Log.d("WebView", "UrL: $url")
             }
         }
         webView.settings.javaScriptEnabled = true;
@@ -104,8 +99,6 @@ data class Garmin(val context: Context, val callback: (String) -> Unit, val onLo
         val client = OkHttpClient()
         val url =
             "https://connect.garmin.com/gc-api/usersummary-service/usersummary/daily/${uuid}?calendarDate=${day}"
-        Log.d("WebView", "URL: $url")
-
         val request = Request.Builder()
             .url(url)
             .header("accept", "*/*")
@@ -131,7 +124,6 @@ data class Garmin(val context: Context, val callback: (String) -> Unit, val onLo
         GlobalScope.launch {
             client.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) {
-                    Log.d("WebView", "Error in http")
                     throw Error("Error in http")
                 }
                 val result = response.body.string()

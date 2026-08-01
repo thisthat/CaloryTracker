@@ -18,3 +18,5 @@ val FatColor = Color(0xFFfc9c37)
 val FatOverColor = Color(0xFFE65100)
 val CarbsColor = Color(0xFF65d9e8)
 val CarbsOverColor = Color(0xFF007A86)
+
+val ChartDefaultColor = Color(0xFF666666)

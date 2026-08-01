@@ -66,7 +66,6 @@ class AddFoodItemViewModel(
             }
 
             is AddFoodItemEvent.SetCalories -> {
-                Log.d("Test","Calories: ${event.calories}")
                 _state.update {
                     it.copy(calories = event.calories)
                 }
@@ -103,7 +102,6 @@ class AddFoodItemViewModel(
             }
 
             AddFoodItemEvent.Save -> {
-                Log.d("Test", "Saving: ${_state.value}")
                 viewModelScope.launch {
                     val f = Food(
                         uid = 0,

@@ -165,7 +165,6 @@ fun Home(
                             garminWebViewScreen = Garmin(
                                 context = ctx,
                                 callback = { s ->
-                                    Log.d("Home", "Val: $s")
                                     // hide the screen again
                                     showLoginScreen = modifier.scale(0f)
                                     onEvent(HomeEvent.GarminData(s))
